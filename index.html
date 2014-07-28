@@ -2,7 +2,7 @@
 sidebar="false"
 showheader="false"
 standardStylesheets="false"
-Controller="ProjectController"
+Controller="ListMeController"
 applyHtmlTag="false"
 applyBodyTag="false"
 >
@@ -22,15 +22,63 @@ applyBodyTag="false"
   <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'style.css')}"/>
 </head>
 
-<body>
+<body ng-controller='EventController'>
   <h1> List Me </h1>
   <h2> List of Events </h2>
+  <div>
+    <div ng-repeat="event in events">
+      <p ng-click="getCustomers(event.Id)"> {{event.Name}} </p>
+    </div>
+  </div>
+  <h2> List of Customers </h2>
+    <div ng-repeat="customer in customers">
+      <p> {{customer.Name}} </p>
+    </div>
 </body>
 <script>
   var listMeApp = angular.module('listMe', []);
   listMeApp.controller('EventController', function($scope) {
     /** List of events. */
     $scope.events = [];
+    /** List of customers. */
+    $scope.customers = [];
+
+    /** Gets all the events. */
+    var getEvents = function() {
+      Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ListMeController.getEvents}',
+        function(result, event) {
+          if (event.status) {
+            $scope.events = result;
+            $scope.$apply();
+          } else if (event.type == 'exception') {
+            alert('Exception: ' + event.message);
+          } else {
+            alert('Error: ' + event.message);
+          }
+        }
+        );
+    }
+    getEvents();
+
+    /** Gets all the Customers that are in the event with Id EVENTID. */
+    $scope.getCustomers = function(eventId) {
+      Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ListMeController.getCustomers}',
+        eventId,
+        function(result, event) {
+          if (event.status) {
+            $scope.customers = result;
+            $scope.$apply();
+          } else if (event.type == 'exception') {
+            alert('Exception: ' + event.message);
+          } else {
+            alert('Error: ' + event.message);
+          }
+        }
+        );
+    }
+
   });
 </script>
 </html>
