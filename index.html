@@ -1,0 +1,37 @@
+<apex:page docType="html-5.0"
+sidebar="false"
+showheader="false"
+standardStylesheets="false"
+Controller="ProjectController"
+applyHtmlTag="false"
+applyBodyTag="false"
+>
+<html ng-app="listMe">
+<head>
+  <title> Tasky </title>
+  <apex:stylesheet value="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"> </script>
+  <apex:includeScript value="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'fastclick/fastclick.js')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'fonts/proximanova.css')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/cometd.js')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/json2.js')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/jquery.cometd.js')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'slide.js')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'style.css')}"/>
+</head>
+
+<body>
+  <h1> List Me </h1>
+  <h2> List of Events </h2>
+</body>
+<script>
+  var listMeApp = angular.module('listMe', []);
+  listMeApp.controller('EventController', function($scope) {
+    /** List of events. */
+    $scope.events = [];
+  });
+</script>
+</html>
+</apex:page>
