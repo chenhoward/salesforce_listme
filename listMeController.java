@@ -11,7 +11,7 @@ global class ListMeController {
     @RemoteAction
     /** Get customers that are in an event with Id EVENTID. */
     global static ListMe_Customer__c[] getCustomers(Id eventId) {
-        ListMe_Customer__c[] customers = [SELECT Name, Status__c, Id, Lead__c FROM ListMe_Customer__c WHERE Event__c =: eventId];
+        ListMe_Customer__c[] customers = [SELECT Name, Status__c, Id, Lead__c FROM ListMe_Customer__c WHERE Event__c =: eventId ORDER BY Order__c ASC];
         return customers;
     }
 }
