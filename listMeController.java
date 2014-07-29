@@ -42,7 +42,8 @@ global class ListMeController {
     global static ListMe_Customer__c removeCustomer(Id customerId) {
         ListMe_Customer__c customer;
         if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
-            customer = [SELECT Name FROM ListMe_Customer__c WHERE Id =: customerId];
+            customer = [SELECT Name, CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Id =: customerId];
+            customer.Wait_Time__c = (System.now().getTime() - customer.CreatedDate.getTime())/ 60000;
             customer.Active__c = false;
             update customer;
         }
