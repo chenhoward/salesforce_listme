@@ -10,8 +10,11 @@ global class ListMeController {
 
     /** Get customers that are in an event with Id EVENTID. */
     @RemoteAction
-    global static ListMe_Customer__c[] getCustomers(Id eventId) {
-        ListMe_Customer__c[] customers = [SELECT Name, Active__c, Id, Contact__c FROM ListMe_Customer__c WHERE Event__c =: eventId ORDER BY Order__c ASC];
+    global static ListMe_Customer__c[] getActiveCustomers(Id eventId) {
+        ListMe_Customer__c[] customers;
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            customers = [SELECT Name, Active__c, Id, Contact__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c =: True ORDER BY Order__c ASC];
+        }
         return customers;
     }
 
@@ -31,6 +34,17 @@ global class ListMeController {
         }
         if (Schema.SObjectType.ListMe_Customer__c.isCreateable()) {
             insert customer;
+        }
+        return customer;
+    }
+
+    @RemoteAction
+    global static ListMe_Customer__c removeCustomer(Id customerId) {
+        ListMe_Customer__c customer;
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            customer = [SELECT Name FROM ListMe_Customer__c WHERE Id =: customerId];
+            customer.Active__c = false;
+            update customer;
         }
         return customer;
     }
