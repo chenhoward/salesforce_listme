@@ -21,7 +21,10 @@ global class ListMeController {
         if (Schema.SObjectType.Contact.isCreateable()) {
             insert customerContact;
         }
-        ListMe_Customer__c customer = new ListMe_Customer__c(Name = customerContact.Name);
+        if (Schema.SObjectType.Contact.isAccessible()) {
+            customerContact = [SELECT Name FROM Contact WHERE Id =: customerContact.Id];
+        }
+        ListMe_Customer__c customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId);
         if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
             ListMe_Customer__c[] customerList = [SELECT Id FROM ListMe_Customer__c WHERE Event__c =: eventId];
             customer.Order__c = customerList.size();

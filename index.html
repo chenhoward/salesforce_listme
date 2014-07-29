@@ -25,21 +25,28 @@ applyBodyTag="false"
 <body ng-controller='EventController'>
   <h1> List Me </h1>
   <h2> List of Events </h2>
-  <div>
     <div ng-repeat="event in events">
-      <p ng-click="getCustomers(event.Id)"> {{event.Name}} </p>
+      <p ng-click="getCustomers(event)"> {{event.Name}} </p>
     </div>
-  </div>
   <h2> List of Customers </h2>
-    <div ng-repeat="customer in customers">
-      <p> {{customer.Name}} </p>
-    </div>
+  <div ng-repeat="customer in customers">
+    <p> {{customer.Name}} </p>
+  </div>
+  <form ng-submit="createCustomer(firstName, lastName, currentEvent.Id)">
+    <p> First Name </p>
+    <input ng-model="firstName"></input>
+    <p> Last Name </p>
+    <input ng-model="lastName"></input>
+    <button type="submit"> Submit this </button>
+  </form>
 </body>
 <script>
   var listMeApp = angular.module('listMe', []);
   listMeApp.controller('EventController', function($scope) {
     /** List of events. */
     $scope.events = [];
+    /** The current event. */
+    $scope.currentEventId = {};
     /** List of customers. */
     $scope.customers = [];
 
@@ -62,14 +69,33 @@ applyBodyTag="false"
     getEvents();
 
     /** Gets all the Customers that are in the event with Id EVENTID. */
-    $scope.getCustomers = function(eventId) {
+    $scope.getCustomers = function(event) {
+      $scope.currentEvent = event;
       Visualforce.remoting.Manager.invokeAction(
         '{!$RemoteAction.ListMeController.getCustomers}',
-        eventId,
+        event.Id,
         function(result, event) {
           if (event.status) {
             $scope.customers = result;
             $scope.$apply();
+          } else if (event.type == 'exception') {
+            alert('Exception: ' + event.message);
+          } else {
+            alert('Error: ' + event.message);
+          }
+        }
+        );
+    }
+
+    $scope.createCustomer = function(firstName, lastName, eventId) {
+      Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.ListMeController.createCustomer}',
+        firstName,
+        lastName,
+        eventId,
+        function(result, event) {
+          if (event.status) {
+            $scope.customers.add(result);
           } else if (event.type == 'exception') {
             alert('Exception: ' + event.message);
           } else {
