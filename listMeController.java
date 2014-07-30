@@ -70,6 +70,6 @@ global class ListMeController {
         for (ListMe_Customer__c customer: customers) {
             times.add(customer.CreatedDate.addMinutes(customer.Wait_Time__c.intValue()));
         }
-        return times;
+        return times.sort();
     }
 }
