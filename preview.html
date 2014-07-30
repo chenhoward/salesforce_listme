@@ -1,0 +1,121 @@
+<apex:page docType="html-5.0"
+sidebar="false" 
+showheader="false"
+standardStylesheets="false"
+applyHtmlTag="false"
+applyBodyTag="false"
+id="todo"
+>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+  <apex:includeScript value="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"/>
+  <!-- using Tasky's Proxima Nova -->
+  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'fonts/proximanova.css')}"/>
+  <!-- End -->
+  <style type="text/css">
+  @-webkit-keyframes bugfix {
+    from { fill: 0; }
+    to { fill: 0; }
+  }
+
+  ::-webkit-scrollbar { width: 0 !important }
+
+  body {
+    font-family: ProximaNova, sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    color: #333;
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    overflow: hidden;
+    background: #FFF;
+    -webkit-animation: bugfix infinite 1s; 
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  p {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  #container {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  #container section {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 100%;
+    overflow: scroll;
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #container section:nth-child(1) {
+    position: absolute;
+    left: 0%;
+  }
+
+  .link {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    color: #4d4d4d;
+    text-decoration: none;
+    text-align: left;
+    font-size: 18px;
+    padding: 20px;
+    height: 80px;
+    box-shadow: -1px -1px #cccccc;
+    border-bottom: 1px solid #cccccc;
+    background: #FFF;
+    width: 100%;
+  }
+
+  .link-title {
+    padding-top: 2px;
+  }
+
+  .link-blurb {
+    color: #999999;
+    margin-top: -2px;
+    font-size: 14px;
+  }
+
+  html { height: 100%; margin: 0; padding: 0;}
+
+  body { height: 100%; margin: 0; padding: 0 }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <section id="one">
+      <div class="link">
+        <p class="link-title"> Person 5 </p>
+        <p class="link-blurb"> Estimated wait time: 15 minutes </p>
+      </div>
+      <div class="link">
+        <p class="link-title"> Person 6 </p>
+        <p class="link-blurb"> Estimated wait time: 30 minutes </p>
+      </div>
+    </section>
+    <section id="two">
+    </section>
+  </div>
+</body>
+</html>
+</apex:page>

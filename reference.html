@@ -1,0 +1,696 @@
+<apex:page docType="html-5.0"
+sidebar="false" 
+showheader="false"
+standardStylesheets="false"
+applyHtmlTag="false"
+applyBodyTag="false"
+id="todo"
+>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+  <apex:includeScript value="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"/>
+  <!-- using Tasky's Proxima Nova -->
+  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'fonts/proximanova.css')}"/>
+  <!-- End -->
+  <script type="text/javascript">
+  function setSection(to, from)
+  {
+    if (!(to.hasClass("active")))
+    {
+      $('#collab').animate({"top":"100%"},100,'linear');
+      if (to.is("#one-overall")) {
+        $("#newbut").animate({"left":"100%"}, 0);
+        $("#newbut").animate({"left":"0"},100,'linear');
+      } else {
+        $("#newbut").animate({"left":"-100%"},100,'linear');
+      }
+      if (to.is("#one")) {
+        $("#pending-tab").addClass("active-tab");
+        $("#pending-alt").css("display", "inline");
+        $("#pending").css("display", "none");
+      }
+      if (from.is("#one")) {
+        $("#pending-tab").removeClass("active-tab");
+        $("#pending").css("display", "inline");
+        $("#pending-alt").css("display", "none");
+      }
+      if (to.is("#two")) {
+        $("#doing-tab").addClass("active-tab");
+        $("#doing-alt").css("display", "inline");
+        $("#doing").css("display", "none");
+      }
+      if (from.is("#two")) {
+        $("#doing-tab").removeClass("active-tab");
+        $("#doing").css("display", "inline");
+        $("#doing-alt").css("display", "none");
+      }
+      if (to.is("#three")) {
+        $("#complete-tab").addClass("active-tab");
+        $("#complete-alt").css("display", "inline");
+        $("#complete").css("display", "none");
+      }
+      if (from.is("#three")) {
+        $("#complete-tab").removeClass("active-tab");
+        $("#complete").css("display", "inline");
+        $("#complete-alt").css("display", "none");
+      }
+      from.animate({"left":"-100%"},100,'linear')
+      to.animate({"left":"0%"},100,'linear',function()
+      {
+        from.css("left","100%");
+        from.removeClass("active");
+        to.addClass("active");
+      });
+    }
+  }
+  $(document).ready(function(){
+    $('a').on('click', function(event)
+    {
+      var sectionId = $(this).attr("data-section"),
+      $toSlide= $("#container section#"+sectionId),
+      $fromSlide= $('.active');
+      setSection($toSlide, $fromSlide);
+    });
+    $('.link-button').on('click', function(event)
+    {
+      $(this).css("opacity", "1");
+      $(this).parent().animate({right:"-100%"}, 200).animate({height:"0px", padding:"0px", border: "0px"}, 200);
+    });
+    $('#collab-button').on('click', function(event)
+    {
+      $('#collab').animate({"top":"0%"},100,'linear');
+    });
+    $('#hide-collab').on('click', function(event)
+    {
+      $('#collab').animate({"top":"100%"},100,'linear');
+    });
+  });
+  window.addEventListener('load', function() {
+    FastClick.attach(document.body);
+  }, false);
+  </script>
+  <style type="text/css">
+  @-webkit-keyframes bugfix {
+    from { fill: 0; }
+    to { fill: 0; }
+  }
+
+  ::-webkit-scrollbar { width: 0 !important }
+
+  body {
+    font-family: ProximaNova, sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    color: #333;
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    overflow: hidden;
+    background: #FFF;
+    -webkit-animation: bugfix infinite 1s; 
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  p {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  #container {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  #container section {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 100%;
+    overflow: scroll;
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #container section:nth-child(1) {
+    position: absolute;
+    left: 0%;
+  }
+
+  .overall {
+    z-index: 4;
+  }
+
+  #header {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 100px;
+    width: 100%;
+    background: #fff;
+    border-bottom: 1px solid #ccc;
+    padding-top: 30px;
+    font-size: 36px;
+    font-weight: 700;
+    color: #ff9d00;
+    text-align: center;
+  }
+
+  .spacer {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 135px;
+    width: 100%;
+  }
+
+  #project-title {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    position: fixed;
+    z-index: 3;
+    width: 100%;
+    height: 55px;
+    top: 0px;
+    left: 0px;
+    font-weight: 500;
+    background: #ff9d00;
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .normal-title {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    float: left;
+    width: 100%;
+    height: 55px;
+    font-weight: 500;
+    background: #ff9d00;
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    padding: 12px;
+  }
+
+  #footer {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    position: fixed;
+    z-index: 3;
+    width: 100%;
+    height: 55px;
+    bottom: 0px;
+    left: 0px;
+    background: #f3f3f3;
+    border-top: 1px solid #cccccc;
+  }
+
+  .footer-button {
+    float: left;
+    width: 41px;
+    height: 41px;
+    margin: 7px;
+    margin-right: 10px;
+    margin-left: 15px;
+  }
+
+  input.switch:empty
+  {
+    margin-left: -9999px;
+  }
+
+  input.switch:empty ~ label
+  {
+    position: relative;
+    float: right;
+    text-indent: 69px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  input.switch:empty ~ label:before, 
+  input.switch:empty ~ label:after
+  {
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    content: ' ';
+    width: 58px;
+    height: 30px;
+    margin-top: 12px;
+    background-color: #ccc;
+    border-radius: 15px;
+    -webkit-transition: all 100ms ease-in;
+    transition: all 100ms ease-in;
+  }
+
+  input.switch:empty ~ label:after
+  {
+    width: 26px;
+    height: 26px;
+    top: 2px;
+    bottom: 2px;
+    margin-left: 2px;
+    background-color: #fff;
+    border-radius: 13px;
+  }
+
+  input.switch:checked ~ label:before
+  {
+    background-color: #ff9d00;
+  }
+
+  input.switch:checked ~ label:after
+  {
+    margin-left: 30px;
+  }
+
+  #view-state-me {
+    display: inline;
+    float: right;
+    color: #999;
+    font-size: 18px;
+    margin-top: 16px;
+    margin-right: 7px;
+  }
+
+  #view-state-all {
+    display: none;
+    float: right;
+    color: #ff9d00;
+    font-size: 18px;
+    margin-top: 16px;
+    margin-right: 7px;
+  }
+
+  input.switch:empty ~ #view-state-me {
+    display: inline;
+  } 
+
+  input.switch:checked ~ #view-state-me {
+    display: none;
+  }
+
+  input.switch:empty ~ #view-state-all {
+    display: none;
+  }
+
+  input.switch:checked ~ #view-state-all {
+    display: inline;
+  }
+
+  #navbar {
+    position: fixed;
+    z-index: 3;
+    width: 100%;
+    height: 80px;
+    top: 55px;
+    left: 0px;
+    background: #FFF;
+    border-bottom: 1px solid #cccccc;
+  }
+
+  .navbut {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    float: left;
+    width: 33%;
+    height: 80px;
+    color: #999999;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: -1px 0px 0px #cccccc;
+    background:  #FFF;
+  }
+
+  .middle {
+    width: 34%;
+  }
+
+  #pending {
+    display: none;
+  }
+
+  #doing-alt, #complete-alt {
+    display: none;
+  }
+
+  #pending, #doing, #complete {
+    margin-top: 9px;
+    width: 40px;
+    height: 40px;
+  }
+
+  #pending-alt, #doing-alt, #complete-alt {
+    margin-top: 9px;
+    width: 40px;
+    height: 40px;
+  }
+
+  #pending-tag, #doing-tag, #complete-tag {
+    margin-top: -7px;
+  }
+
+  .active-tab {
+    border-bottom: 7px solid #FF9D00;
+    color: #FF9D00;
+  }
+
+  .link {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    color: #4d4d4d;
+    text-decoration: none;
+    text-align: left;
+    font-size: 18px;
+    padding: 20px;
+    height: 80px;
+    box-shadow: -1px -1px #cccccc;
+    border-bottom: 1px solid #cccccc;
+    background: #FFF;
+    width: 100%;
+  }
+
+  .link-title {
+    padding-top: 2px;
+  }
+
+  .link-blurb {
+    color: #999999;
+    margin-top: -2px;
+    font-size: 14px;
+  }
+
+  .link-button {
+    float: right;
+    opacity: 0.5;
+    height: 40px;
+    width: 40px;
+    margin-top: -37px;
+  }
+
+  .link-button:hover {
+    cursor: pointer;
+  }
+
+  .add-collab-button, .remove-collab-button {
+    float: right;
+    height: 20px;
+    width: 20px;
+    padding: 10px;
+    border-radius: 20px;
+    margin-top: -37px;
+    background: #ff9d00;
+  }
+
+  .add-collab-button {
+    -webkit-transform: rotate(45deg);
+    background: #999;
+  }
+
+  .add-collab-button:hover, .remove-collab-button:hover {
+    cursor: pointer;
+  }
+
+  .image {
+    float: left;
+    width: 46px;
+    height: 46px;
+    margin-left: -3px;
+    margin-right: 16px;
+    margin-top: -2px;
+  }
+
+  #new {
+    margin-top: 15px;
+    width: 30px;
+    height: 30px;
+  }
+
+  #newtag {
+    margin-top: -2px;
+  }
+
+  #newbut {
+    position: fixed;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+    height: 80px;
+    bottom: 0;
+    left: 0px;
+    background: #FF9D00;
+  }
+
+  .back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 55px;
+    height: 55px;
+  }
+
+  .arrow-back {
+    float: left;
+    margin-top: 20px;
+    margin-left: 25px;
+    width: 10px; 
+    height: 10px;
+    -webkit-transform: rotate(-135deg);
+    border-top: 3px solid #fff;
+    border-right: 3px solid #fff;
+  }
+
+  .arrow-right {
+    float: right;
+    margin-top: -25px;
+    width: 10px; 
+    height: 10px;
+    -webkit-transform: rotate(45deg);
+    border-top: 3px solid #cccccc;
+    border-right: 3px solid #cccccc;
+  }
+
+  .x {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 20px;
+    height: 20px;
+    padding: 17px;
+  }
+
+  .x:hover {
+    cursor: pointer;
+  }
+
+  #collab {
+    position: fixed;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    top: 100%;
+    overflow: scroll;
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .transparent {
+    opacity: 0.5;
+  }
+
+  #add-collab-input {
+    font-family: ProximaNova, sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    color: #4d4d4d;
+    width: 92%;
+    margin-top: 6px;
+    padding: 4px;
+    padding-left: 10px;
+    outline: none;
+    border: 1px solid #999999;
+    max-width: 800px;
+    background: transparent;
+    border-radius: 5px;
+    -webkit-appearance: none;
+  }
+
+  html { height: 100%; margin: 0; padding: 0;}
+
+  body { height: 100%; margin: 0; padding: 0 }
+  </style>
+</head>
+<body>
+  <div id="main-page">
+    <div id="navbar">
+      <!-- Currently no icons -->
+      <a class="navbut active-tab" id="pending-tab" data-section="one" href="#">
+        <p> <img id="pending" src="{!URLFOR($Resource.TaskyAssets, 'images/pending.svg')}"></img> </p>
+        <p> <img id="pending-alt" src="{!URLFOR($Resource.TaskyAssets, 'images/pending-alt.svg')}"></img> </p>
+        <p id="pending-tag"> Pending </p>
+      </a>
+      <a class="navbut middle" id="doing-tab" data-section="two" href="#">
+        <p> <img id="doing" src="{!URLFOR($Resource.TaskyAssets, 'images/doing.svg')}"></img> </p>
+        <p> <img id="doing-alt" src="{!URLFOR($Resource.TaskyAssets, 'images/doing-alt.svg')}"></img> </p>
+        <p id="doing-tag"> Doing </p>
+      </a>
+      <a class="navbut" id="complete-tab" data-section="three" href="#">
+        <p> <img id="complete" src="{!URLFOR($Resource.TaskyAssets, 'images/completed.svg')}"></img> </p>
+        <p> <img id="complete-alt" src="{!URLFOR($Resource.TaskyAssets, 'images/completed-alt.svg')}"></img> </p>
+        <p id="complete-tag"> Complete </p>
+      </a>
+    </div>
+    <div id="project-title"> Project 1 
+      <a class="back" data-section="one-overall" href="#">
+        <div class="arrow-back"></div>
+      </a>
+    </div>
+    <div id="footer">
+      <a data-section="one-overall" href="#"><img class="footer-button" src="{!URLFOR($Resource.TaskyAssets, 'images/home.svg')}"></img></a>
+      <img class="footer-button" src="{!URLFOR($Resource.TaskyAssets, 'images/new.svg')}"></img>
+      <img id="collab-button" class="footer-button" src="{!URLFOR($Resource.TaskyAssets, 'images/collabs.svg')}"></img>
+      <div>
+        <input type="checkbox" id="switch1" name="switch1" class="switch"/>
+        <label for="switch1"> &nbsp; </label>
+        <span id="view-state-me"> Me </span>
+        <span id="view-state-all"> All </span>
+      </div>
+    </div>
+    <div id="container">
+      <section id="one-overall" class="active overall">
+        <div id="header">Taskly</div>
+        <a class="link" data-section="one" href="#">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Project 1 </p>
+          <p class="link-blurb"> This is a description. </p>
+          <div class="arrow-right"></div>
+        </a>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/howard.jpg')}"></img>
+          <p class="link-title"> Project 2 </p>
+          <p class="link-blurb"> This is Howard's project. </p>
+          <div class="arrow-right"></div>
+        </div>
+        <div id="newbut">
+          <p><img id="new" src="{!URLFOR($Resource.ChecklistAssets, 'new.svg')}"></img></p>
+          <p id="newtag"> New </p>
+        </div>
+      </section>
+      <section id="one">
+        <div class="spacer"></div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Task 5 </p>
+          <p class="link-blurb"> This is a description? </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/doing.svg')}"></img>
+        </div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Task 6 </p>
+          <p class="link-blurb"> This is a description! </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/doing.svg')}"></img>
+        </div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Task 7 </p>
+          <p class="link-blurb"> This is a description! </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/doing.svg')}"></img>
+        </div>
+      </section>
+      <section id="two">
+        <div class="spacer"></div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Task 4 </p>
+          <p class="link-blurb"> This is a description. </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/completed.svg')}"></img>
+        </div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Random Task </p>
+          <p class="link-blurb"> This is a description. </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/completed.svg')}"></img>
+        </div>
+      </section>
+      <section id="three">
+        <div class="spacer"></div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Task 3 </p>
+          <p class="link-blurb"> This is a description? </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/pending.svg')}"></img>
+        </div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Task 2 </p>
+          <p class="link-blurb"> This is a description! </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/pending.svg')}"></img>
+        </div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Task 1 </p>
+          <p class="link-blurb"> This is a description. </p>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/pending.svg')}"></img>
+        </div>
+      </section>
+      <div id="collab">
+        <img class="x" id="hide-collab" src="{!URLFOR($Resource.ChecklistAssets, 'x.svg')}"></img>
+        <div class="normal-title"> Collaborators </div>
+        <div class="link">
+          <input type="text" id="add-collab-input" placeholder="Search for a person..."/>
+        </div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/kevin.jpg')}"></img>
+          <p class="link-title"> Kevin Wu </p>
+          <p class="link-blurb"> Front-End Web Design Intern </p>
+          <img class="remove-collab-button" src="{!URLFOR($Resource.ChecklistAssets, 'x.svg')}"></img>
+        </div>
+        <div class="link">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/howard.jpg')}"></img>
+          <p class="link-title"> Howard Chen </p>
+          <p class="link-blurb"> Front-End Web Design Intern </p>
+          <img class="remove-collab-button" src="{!URLFOR($Resource.ChecklistAssets, 'x.svg')}"></img>
+        </div>
+        <div class="link transparent">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/question.svg')}"></img>
+          <p class="link-title"> Haward Chen </p>
+          <p class="link-blurb"> Someone That Does Stuff </p>
+          <img class="add-collab-button" src="{!URLFOR($Resource.ChecklistAssets, 'x.svg')}"></img>
+        </div>
+        <div class="link transparent">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/question.svg')}"></img>
+          <p class="link-title"> Huward Chen </p>
+          <p class="link-blurb"> Interning Intern </p>
+          <img class="add-collab-button" src="{!URLFOR($Resource.ChecklistAssets, 'x.svg')}"></img>
+        </div>
+        <div class="link transparent">
+          <img class="image" src="{!URLFOR($Resource.TaskyAssets, 'images/question.svg')}"></img>
+          <p class="link-title"> Heward Chen </p>
+          <p class="link-blurb"> Potato Eater </p>
+          <img class="add-collab-button" src="{!URLFOR($Resource.ChecklistAssets, 'x.svg')}"></img>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+</apex:page>
