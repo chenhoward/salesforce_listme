@@ -11,6 +11,7 @@ applyBodyTag="false"
   <title> ListMe </title>
   <apex:stylesheet value="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400"/>
   <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+  <meta charset="UTF-8"/>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"> </script>
   <apex:includeScript value="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"/>
   <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'fastclick/fastclick.js')}"/>
@@ -19,120 +20,211 @@ applyBodyTag="false"
   <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/json2.js')}"/>
   <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/jquery.cometd.js')}"/>
   <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'slide.js')}"/>
-  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'style.css')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.listMeAssets, 'd3/d3.min.js')}"/>
+
 </head>
+<style type="text/css">
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+</style>
 
 <body ng-controller='EventController'>
   <h1> List Me </h1>
   <input ng-model='test' type="date"></input>
   {{test}}
   <h2> List of Events </h2>
-    <div ng-repeat="event in events">
-      <p ng-click="getActiveCustomers(event)"> {{event.Name}} </p>
-    </div>
+  <div ng-repeat="event in events">
+    <p ng-click="getActiveCustomers(event)"> {{event.Name}} </p>
+  </div>
   <h2> List of Customers </h2>
   <div ng-repeat="customer in customers">
     <p ng-click="removeCustomer($index, customer)"> {{customer.Name}} </p>
   </div>
   <form ng-submit="createCustomer(customer, currentEvent)">
     <apex:repeat value="{!$ObjectType.Contact.FieldSets.ListMe}" var="f">
-      <p ng-show="{!f.Required}"> * </p> {!f.Label}: {!f.Type}
-      <input ng-model="customer.{!f.FieldPath}" ng-show="'{!f.Type}' !== 'date'" type="{!f.Type}" isRequired="{!f.Required}"/>
-      <input ng-model="customer.{!f.FieldPath}" ng-show="'{!f.Type}' == 'date'" type="{!f.Type}" isRequired="{!f.Required}"/>
-    </apex:repeat>
+    <p ng-show="{!f.Required}"> * </p> {!f.Label}: {!f.Type}
+    <input ng-model="customer.{!f.FieldPath}" ng-show="'{!f.Type}' !== 'date'" type="{!f.Type}" isRequired="{!f.Required}"/>
+    <input ng-model="customer.{!f.FieldPath}" ng-show="'{!f.Type}' == 'date'" type="{!f.Type}" isRequired="{!f.Required}"/>
+  </apex:repeat>
 
-    <button type="submit"> Submit Form </button>
-  </form>
+  <button type="submit"> Submit Form </button>
+  <button type="button" ng-click="createLineGraph(currentEvent)"> Get line graph </button>
+</form>
 
 </body>
 <script>
-  var listMeApp = angular.module('listMe', []);
-  listMeApp.controller('EventController', function($scope) {
-    /** List of events. */
-    $scope.events = [];
-    /** The current event. */
-    $scope.currentEvent = {};
-    /** List of customers. */
-    $scope.customers = [];
+var listMeApp = angular.module('listMe', []);
+listMeApp.controller('EventController', function($scope) {
+  /** List of events. */
+  $scope.events = [];
+  /** The current event. */
+  $scope.currentEvent = {};
+  /** List of customers. */
+  $scope.customers = [];
 
-    /** Gets all the events. */
-    var getEvents = function() {
-      Visualforce.remoting.Manager.invokeAction(
-        '{!$RemoteAction.ListMeController.getEvents}',
-        function(result, event) {
-          if (event.status) {
-            $scope.events = result;
-            $scope.$apply();
-          } else if (event.type == 'exception') {
-            alert('Exception: ' + event.message);
-          } else {
-            alert('Error: ' + event.message);
-          }
-        }
-        );
-    }
-    getEvents();
-
-    /** Gets all the Customers that are in the event with Id EVENTID. */
-    $scope.getActiveCustomers = function(event) {
-      $scope.currentEvent = event;
-      Visualforce.remoting.Manager.invokeAction(
-        '{!$RemoteAction.ListMeController.getActiveCustomers}',
-        event.Id,
-        function(result, event) {
-          if (event.status) {
-            $scope.customers = result;
-            $scope.$apply();
-          } else if (event.type == 'exception') {
-            alert('Exception: ' + event.message);
-          } else {
-            alert('Error: ' + event.message);
-          }
-        }
-        );
-    }
-
-    $scope.createCustomer = function(customer, event) {
-      for (var key in customer) {
-        var dateValue = Date.parse(customer[key]);
-        if (!isNaN(dateValue)) {
-          customer[key] = dateValue;
+  /** Gets all the events. */
+  var getEvents = function() {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ListMeController.getEvents}',
+      function(result, event) {
+        if (event.status) {
+          $scope.events = result;
+          $scope.$apply();
+        } else if (event.type == 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('Error: ' + event.message);
         }
       }
-      Visualforce.remoting.Manager.invokeAction(
-        '{!$RemoteAction.ListMeController.createCustomer}',
-        customer,
-        event.Id,
-        function(result, event) {
-          if (event.status) {
-            $scope.customers.push(result);
-            $scope.$apply();
-          } else if (event.type == 'exception') {
-            alert('Exception: ' + event.message);
-          } else {
-            alert('Error: ' + event.message);
-          }
-        }
-        );
-    }
+      );
+  }
+  getEvents();
 
-    $scope.removeCustomer = function(index, customer) {
-      $scope.customers.splice(index, 1);
-      Visualforce.remoting.Manager.invokeAction(
-        '{!$RemoteAction.ListMeController.removeCustomer}',
-        customer.Id,
-        function(result, event) {
-          if (event.status) {
-
-          } else if (event.type == 'exception') {
-            alert('Exception: ' + event.message);
-          } else {
-            alert('Error: ' + event.message);
-          }
+  /** Gets all the Customers that are in the event with Id EVENTID. */
+  $scope.getActiveCustomers = function(event) {
+    $scope.currentEvent = event;
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ListMeController.getActiveCustomers}',
+      event.Id,
+      function(result, event) {
+        if (event.status) {
+          $scope.customers = result;
+          $scope.$apply();
+        } else if (event.type == 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('Error: ' + event.message);
         }
-        );
+      }
+      );
+  }
+
+  $scope.createCustomer = function(customer, event) {
+    for (var key in customer) {
+      var dateValue = Date.parse(customer[key]);
+      if (!isNaN(dateValue)) {
+        customer[key] = dateValue;
+      }
     }
-  });
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ListMeController.createCustomer}',
+      customer,
+      event.Id,
+      function(result, event) {
+        if (event.status) {
+          $scope.customers.push(result);
+          $scope.$apply();
+        } else if (event.type == 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('Error: ' + event.message);
+        }
+      }
+      );
+  }
+
+  $scope.removeCustomer = function(index, customer) {
+    $scope.customers.splice(index, 1);
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ListMeController.removeCustomer}',
+      customer.Id,
+      function(result, event) {
+        if (event.status) {
+
+        } else if (event.type == 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('Error: ' + event.message);
+        }
+      }
+      );
+  }
+
+  $scope.createLineGraph = function(event) {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ListMeController.getSignUpTimes}',
+      event.Id,
+      function(result, event) {
+        if (event.status) {
+          data = result;
+          var margin = {top: 20, right: 20, bottom: 30, left: 50},
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+          var parseDate = d3.time.format("%d-%b-%y").parse;
+
+          var x = d3.time.scale()
+          .range([0, width]);
+
+          var y = d3.scale.linear()
+          .range([height, 0]);
+
+          var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom");
+
+          var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient("left");
+
+          var line = d3.svg.line()
+          .x(function(d) { return x(new Date(d)); })
+          .y(function(d, i) { return y(i); });
+
+          var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          x.domain(d3.extent(data, function(d) { return d }));
+          y.domain(d3.extent(data, function(d, i) { return i }));
+
+          svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+          svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Price ($)");
+
+          svg.append("path")
+          .datum(data)
+          .attr("class", "line")
+          .attr("d", line);
+          $scope.$apply();
+      } else if (event.type == 'exception') {
+        alert('Exception: ' + event.message);
+      } else {
+        alert('Error: ' + event.message);
+      }
+    });
+}
+});
+
+
+
 </script>
 </html>
 </apex:page>
