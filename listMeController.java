@@ -18,6 +18,7 @@ global class ListMeController {
         return customers;
     }
 
+    /** Creates the CUSTOMERCONTACT for an event with Id EVENTID. */
     @RemoteAction
     global static ListMe_Customer__c createCustomer(Contact customerContact, Id eventId) {
         if (Schema.SObjectType.Contact.isCreateable()) {
@@ -37,6 +38,7 @@ global class ListMeController {
         return customer;
     }
 
+    /** Removes the customer with Id CUSTOMERID. */
     @RemoteAction
     global static ListMe_Customer__c removeCustomer(Id customerId) {
         ListMe_Customer__c customer;
@@ -48,5 +50,16 @@ global class ListMeController {
         }
         return customer;
     }
-    
+
+    /** Gets the signuptimes for the event with Id EVENTID. */
+    @RemoteAction
+    global static DateTime[] getSignUpTimes(Id eventId) {
+        ListMe_Customer__c[] customers = [SELECT CreatedDate FROM ListMe_Customer__c WHERE Event__c =: eventId ORDER BY CreatedDate ASC];
+        DateTime[] times = new List<DateTime>();
+        for (ListMe_Customer__c customer: customers) {
+            times.add(customer.CreatedDate);
+        }
+        return times;
+    }
+
 }
