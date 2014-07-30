@@ -64,12 +64,8 @@ global class ListMeController {
 
     /** Gets the off times for the event with Id EVENTID. */
     @RemoteAction
-    global static DateTime[] getOffTimes(Id eventId) {
+    global static ListMe_Customer__c[] getOffTimes(Id eventId) {
         ListMe_Customer__c[] customers = [SELECT CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c = false AND Dropped__c = false ORDER BY CreatedDate ASC];
-        DateTime[] times = new List<DateTime>();
-        for (ListMe_Customer__c customer: customers) {
-            times.add(customer.CreatedDate.addMinutes(customer.Wait_Time__c.intValue()));
-        }
-        return times.sort();
+        return customers;
     }
 }
