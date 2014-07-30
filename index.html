@@ -24,6 +24,8 @@ applyBodyTag="false"
 
 <body ng-controller='EventController'>
   <h1> List Me </h1>
+  <input ng-model='test' type="date"></input>
+  {{test}}
   <h2> List of Events </h2>
     <div ng-repeat="event in events">
       <p ng-click="getActiveCustomers(event)"> {{event.Name}} </p>
@@ -32,13 +34,16 @@ applyBodyTag="false"
   <div ng-repeat="customer in customers">
     <p ng-click="removeCustomer($index, customer)"> {{customer.Name}} </p>
   </div>
-  <form ng-submit="createCustomer(firstName, lastName, currentEvent.Id)">
-    <p> First Name </p>
-    <input ng-model="firstName"></input>
-    <p> Last Name </p>
-    <input ng-model="lastName"></input>
-    <button type="submit"> Submit this </button>
+  <form ng-submit="createCustomer(customer, currentEvent)">
+    <apex:repeat value="{!$ObjectType.Contact.FieldSets.ListMe}" var="f">
+      <p ng-show="{!f.Required}"> * </p> {!f.Label}: {!f.Type}
+      <input ng-model="customer.{!f.FieldPath}" ng-show="'{!f.Type}' !== 'date'" type="{!f.Type}" isRequired="{!f.Required}"/>
+      <input ng-model="customer.{!f.FieldPath}" ng-show="'{!f.Type}' == 'date'" type="{!f.Type}" isRequired="{!f.Required}"/>
+    </apex:repeat>
+
+    <button type="submit"> Submit Form </button>
   </form>
+
 </body>
 <script>
   var listMeApp = angular.module('listMe', []);
@@ -46,7 +51,7 @@ applyBodyTag="false"
     /** List of events. */
     $scope.events = [];
     /** The current event. */
-    $scope.currentEventId = {};
+    $scope.currentEvent = {};
     /** List of customers. */
     $scope.customers = [];
 
@@ -87,12 +92,17 @@ applyBodyTag="false"
         );
     }
 
-    $scope.createCustomer = function(firstName, lastName, eventId) {
+    $scope.createCustomer = function(customer, event) {
+      for (var key in customer) {
+        var dateValue = Date.parse(customer[key]);
+        if (!isNaN(dateValue)) {
+          customer[key] = dateValue;
+        }
+      }
       Visualforce.remoting.Manager.invokeAction(
         '{!$RemoteAction.ListMeController.createCustomer}',
-        firstName,
-        lastName,
-        eventId,
+        customer,
+        event.Id,
         function(result, event) {
           if (event.status) {
             $scope.customers.push(result);

@@ -19,8 +19,7 @@ global class ListMeController {
     }
 
     @RemoteAction
-    global static ListMe_Customer__c createCustomer(String firstName, String lastName, Id eventId) {
-        Contact customerContact = new Contact(firstName = firstName, lastName = lastName);
+    global static ListMe_Customer__c createCustomer(Contact customerContact, Id eventId) {
         if (Schema.SObjectType.Contact.isCreateable()) {
             insert customerContact;
         }
