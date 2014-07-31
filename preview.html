@@ -76,6 +76,22 @@ id="todo"
     {
       $('#one-overall').animate({left:"0",right:"0"},200);
     });
+    $('#expand-list').on('click', function(event)
+    {
+      $('#list').animate({"opacity":"1"}, 1);
+      $('#list').animate({"top":"0"}, { queue: false, duration: 200 });
+      $('#list').animate({"left":"0"}, { queue: false, duration: 200 });
+      $('#list').animate({"bottom":"0"}, { queue: false, duration: 200 });
+      $('#list').animate({"right":"0"}, { queue: false, duration: 200 });
+    });
+    $('#hide-list').on('click', function(event)
+    {
+      $('#list').animate({"opacity":"0"}, 200);
+      $('#list').animate({"top":"50%"}, 1);
+      $('#list').animate({"left":"50%"}, 1);
+      $('#list').animate({"bottom":"50%"}, 1);
+      $('#list').animate({"right":"50%"}, 1);
+    });
   });
   </script>
   <style type="text/css">
@@ -124,7 +140,7 @@ id="todo"
     font-style: normal;
   }
 
-  #header-overall {
+  .header-overall {
     height: 160px;
     width: 100%;
     background-image: url(http://goo.gl/W6QMrW);
@@ -139,6 +155,17 @@ id="todo"
     right: 0px;
     bottom: 0px;
     overflow: hidden;
+    background: #fff;
+  }
+
+  #list {
+    position: absolute;
+    z-index: 3;
+    opacity: 0;
+    top: 50%;
+    left: 50%;
+    right: 50%;
+    bottom: 50%;
     background: #fff;
   }
 
@@ -242,6 +269,15 @@ id="todo"
     margin-right: 25px;
   }
 
+  .x {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 20px;
+    height: 20px;
+    padding: 17px;
+  }
+
   .list-header {
     margin: 7px;
   }
@@ -321,10 +357,10 @@ id="todo"
 </head>
 <body>
   <div id="one-overall">
-    <div id="header-overall"></div>
+    <div class="header-overall"></div>
     <div class="link">
-        <h1 class="list-header"> My Events </h1>
-      </div>
+      <h1 class="list-header"> My Events </h1>
+    </div>
     <a class="link" data-section="one" href="#">
       <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
       <p class="link-title"> Event 1 </p>
@@ -370,7 +406,7 @@ id="todo"
   <div id="container">
     <section id="one" class="active">
       <div class="link">
-        <img class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'expand.svg')}"/>
+        <img id="expand-list" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'expand.svg')}"/>
         <img class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
         <h1 class="list-header"> Waitlist </h1>
       </div>
@@ -403,6 +439,31 @@ id="todo"
     </section>
     <section id="three">
     </section>
+  </div>
+  <div id="list">
+    <div class="header-overall"></div>
+    <img class="x" id="hide-list" src="{!URLFOR($Resource.listMeAssets, 'clear-x.svg')}"></img>
+    <div class="link">
+      <h1 class="list-header"> Waitlist </h1>
+    </div>
+    <div class="link">
+      <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+      <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+      <p class="link-title blue"> Person 1 </p>
+      <p class="link-blurb blue"> Next! </p>
+    </div>
+    <div class="link">
+      <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+      <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+      <p class="link-title"> Person 2 </p>
+      <p class="link-blurb"> Estimated wait time: 15 minutes </p>
+    </div>
+    <div class="link">
+      <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+      <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+      <p class="link-title"> Person 3 </p>
+      <p class="link-blurb"> Estimated wait time: 30 minutes </p>
+    </div>
   </div>
 </body>
 </html>
