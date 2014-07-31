@@ -694,3 +694,631 @@ id="todo"
 </body>
 </html>
 </apex:page>
+
+<apex:page docType="html-5.0"
+sidebar="false"
+showheader="false"
+standardStylesheets="false"
+Controller="ProjectController"
+applyHtmlTag="false"
+applyBodyTag="false"
+>
+<html ng-app="taskyApp">
+<head>
+  <title> Tasky </title>
+  <apex:stylesheet value="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"> </script>
+  <apex:includeScript value="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'fastclick/fastclick.js')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'fonts/proximanova.css')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/cometd.js')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/json2.js')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/jquery.cometd.js')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'slide.js')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'style.css')}"/>
+</head>
+<body ng-app="taskyApp">
+  <div id="main-page" ng-controller="ProjectCtrl">
+    <div id="navbar">
+      <a class="navbut" id="pending-tab" data-section="one" href="#">
+        <p> <img id="pending" src="{!URLFOR($Resource.TaskyAssets, 'images/pending.svg')}"></img> </p>
+        <p> <img id="pending-alt" src="{!URLFOR($Resource.TaskyAssets, 'images/pending-alt.svg')}"></img> </p>
+        <p id="pending-tag"> Pending </p>
+      </a>
+      <a class="navbut middle" id="doing-tab" data-section="two" href="#">
+        <p> <img id="doing" src="{!URLFOR($Resource.TaskyAssets, 'images/doing.svg')}"></img> </p>
+        <p> <img id="doing-alt" src="{!URLFOR($Resource.TaskyAssets, 'images/doing-alt.svg')}"></img> </p>
+        <p id="doing-tag"> Doing </p>
+      </a>
+      <a class="navbut" id="complete-tab" data-section="three" href="#">
+        <p> <img id="complete" src="{!URLFOR($Resource.TaskyAssets, 'images/completed.svg')}"></img> </p>
+        <p> <img id="complete-alt" src="{!URLFOR($Resource.TaskyAssets, 'images/completed-alt.svg')}"></img> </p>
+        <p id="complete-tag"> Complete </p>
+      </a>
+    </div>
+    <div id="project-title"> {{currentProject.Name}} 
+      <a class="back" data-section="one-overall" href="#">
+        <div class="arrow-back"></div>
+      </a>
+    </div>
+    <div id="footer">
+      <img class="footer-button" src="{!URLFOR($Resource.TaskyAssets, 'images/home.svg')}" ng-click="sOneNav(currentProject.Id)"></img>
+      <img id="footer-preload" class="footer-button" src="{!URLFOR($Resource.TaskyAssets, 'images/new.svg')}" ng-click="sOneCreate('Tasky_Task__c');" ng-show="creatable"></img>
+      <img class="footer-loader" src="{!URLFOR($Resource.TaskyAssets, 'images/gray-loader.gif')}" ng-show="!creatable"></img>
+      <img id="collab-button" class="footer-button" src="{!URLFOR($Resource.TaskyAssets, 'images/collabs.svg')}"></img>
+      <div>
+        <input type="checkbox" id="switch1" name="switch1" class="switch" ng-model="all"/>
+        <label for="switch1"> &nbsp; </label>
+        <span id="view-state-me"> Me </span>
+        <span id="view-state-all"> All </span>
+      </div>
+    </div>
+    <div id="container">
+      <section id="one-overall" class="active overall">
+        <div class="small-spacer"></div>
+        <a class="link" data-section="one" ng-click="getTasks(project.Id); projectTransition(project);" ng-repeat="project in projects">
+          <img class="image" src="{{idToUrlMap[project.CreatedById]}}"></img>
+          <p class="link-title shorten"> {{project.Name}} </p>
+          <p class="link-blurb shorten"> {{project.Description__c}} &nbsp; </p>
+          <div class="arrow-right"></div>
+        </a>
+        <div class="spacer"></div>
+      </section>
+      <div id="header">Tasky</div>
+      <div id="newbut" ng-click="sOneCreate('Tasky_Project__c');">
+        <p><img id="new" src="{!URLFOR($Resource.TaskyAssets, 'images/new-white.svg')}" ng-show="creatable"></img>
+          <img id="new-loader" src="{!URLFOR($Resource.TaskyAssets, 'images/orange-loader.gif')}" ng-show="!creatable"></img>
+        </p>
+        <p id="newtag" ng-show="creatable"> New </p>
+      </div>
+      <section id="one">
+        <div class="spacer"></div>
+        <div id="{{task.Id}}" class="link task-link" ng-repeat="task in tasks | listType:'Pending' | allFilter:this">
+          <div ng-click="updateAssigneeNav(task)">
+            <img class="image img-padding" ng-show="task.Assignee__c" src="{{idToUrlMap[task.Assignee__c]}}"></img>
+            <img class="image img-padding" ng-show="!task.Assignee__c" src="{!URLFOR($Resource.TaskyAssets, 'images/question.svg')}"></img>
+          </div>
+          <!--<div ng-click="sOneNav(task.Id)">-->
+          <div class="link-bg" ng-click="showTaskMenu(task)">
+            <p class="link-title shorten"> <span class="orange" ng-show="task.Priority__c"> &#9733; </span> {{task.Name}} </p>
+            <p class="link-blurb shorten" ng-show="!task.Late__c"> {{millisToUTCDate(task.Due_Date__c) | date:'mediumDate'}} &nbsp;  </p>
+            <p class="link-blurb late shorten" ng-show="task.Late__c"> {{millisToUTCDate(task.Due_Date__c) | date:'mediumDate'}} &nbsp; </p>
+          </div>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/doing.svg')}" ng-click="updateTaskStatus(task, 'Doing')"></img>
+          <div class="{{task.Id}} menu"> 
+            <div class="taskbut" ng-click="hideTaskMenu(task)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/cancel.svg')}"></img>
+            </div>
+            <div class="taskbut inverted" ng-click="flipPriority(currentTask)" ng-show="currentTask.Priority__c">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/star-white.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="flipPriority(currentTask)" ng-show="!currentTask.Priority__c">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/star.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="chatterNav(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/chatter.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="editNav(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/edit.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="deleteTask(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/delete.svg')}"></img>
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+      </section>
+      <section id="two">
+        <div class="spacer"></div>
+        <div id="{{task.Id}}" class="link task-link" ng-repeat="task in tasks | listType:'Doing' | allFilter:this">
+          <div ng-click="updateAssigneeNav(task)">
+            <img class="image img-padding" ng-show="task.Assignee__c" src="{{idToUrlMap[task.Assignee__c]}}"></img>
+            <img class="image img-padding" ng-show="!task.Assignee__c" src="{!URLFOR($Resource.TaskyAssets, 'images/question.svg')}"></img>
+          </div>
+          <!--<div ng-click="sOneNav(task.Id)">-->
+          <div class="link-bg" ng-click="showTaskMenu(task)">
+            <p class="link-title shorten"> <span class="orange" ng-show="task.Priority__c"> &#9733; </span> {{task.Name}} </p>
+            <p class="link-blurb shorten" ng-show="!task.Late__c"> {{millisToUTCDate(task.Due_Date__c) | date:'mediumDate'}} &nbsp;  </p>
+            <p class="link-blurb late shorten" ng-show="task.Late__c"> {{millisToUTCDate(task.Due_Date__c) | date:'mediumDate'}} &nbsp; </p>
+          </div>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/completed.svg')}" ng-click="updateTaskStatus(task, 'Done')"></img>
+          <div class="{{task.Id}} menu"> 
+            <div class="taskbut" ng-click="hideTaskMenu(task)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/cancel.svg')}"></img>
+            </div>
+            <div class="taskbut inverted" ng-click="flipPriority(currentTask)" ng-show="currentTask.Priority__c">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/star-white.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="flipPriority(currentTask)" ng-show="!currentTask.Priority__c">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/star.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="chatterNav(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/chatter.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="editNav(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/edit.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="deleteTask(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/delete.svg')}"></img>
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+      </section>
+      <section id="three">
+        <div class="spacer"></div>
+        <div id="{{task.Id}}" class="link task-link" ng-repeat="task in tasks | listType:'Done' | allFilter:this">
+          <div ng-click="updateAssigneeNav(task)">
+            <img class="image img-padding" ng-show="task.Assignee__c" src="{{idToUrlMap[task.Assignee__c]}}"></img>
+            <img class="image img-padding" ng-show="!task.Assignee__c" src="{!URLFOR($Resource.TaskyAssets, 'images/question.svg')}"></img>
+          </div>
+          <!--<div ng-click="sOneNav(task.Id)">-->
+          <div class="link-bg" ng-click="showTaskMenu(task)">
+            <p class="link-title shorten"> <span class="orange" ng-show="task.Priority__c"> &#9733; </span> {{task.Name}} </p>
+            <p class="link-blurb shorten"> {{millisToUTCDate(task.Completed_Date__c) | date:'mediumDate'}} &nbsp;  </p>
+          </div>
+          <img class="link-button" src="{!URLFOR($Resource.TaskyAssets, 'images/pending.svg')}" ng-click="updateTaskStatus(task, 'Pending')"></img>
+          <div class="{{task.Id}} menu"> 
+            <div class="taskbut" ng-click="hideTaskMenu(task)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/cancel.svg')}"></img>
+            </div>
+            <div class="taskbut inverted" ng-click="flipPriority(currentTask)" ng-show="currentTask.Priority__c">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/star-white.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="flipPriority(currentTask)" ng-show="!currentTask.Priority__c">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/star.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="chatterNav(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/chatter.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="editNav(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/edit.svg')}"></img>
+            </div>
+            <div class="taskbut" ng-click="deleteTask(currentTask)">
+              <img class="taskimg" src="{!URLFOR($Resource.TaskyAssets, 'images/delete.svg')}"></img>
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+      </section>
+      <div id="collab">
+        <img class="x" id="hide-collab" src="{!URLFOR($Resource.TaskyAssets, 'images/x.svg')}"></img>
+        <div class="normal-title"> Collaborators </div>
+        <div class="link">
+          <input type="text" id="add-collab-input" ng-model="searchText" placeholder="Search for a person..."/>
+        </div>
+        <div class="link" ng-repeat="collaborator in projectCollaborators | filter:searchText">
+          <img class="image" src="{{idToUrlMap[collaborator.User__c]}}"></img>
+          <p class="link-title shorten"> {{collaborator.Name}} </p>
+          <p class="link-blurb shorten"> {{collaborator.User__r.Title}} &nbsp; </p>
+          <img class="remove-collab-button" src="{!URLFOR($Resource.TaskyAssets, 'images/x.svg')}" ng-click="removeCollaborator(collaborator.Id)"></img>
+        </div>
+        <div class="link transparent" ng-repeat="user in users | filter:searchText">
+          <img class="image" src="{{idToUrlMap[user.Id]}}"></img>
+          <p class="link-title shorten"> {{user.Name}} </p>
+          <p class="link-blurb shorten">  {{user.Title}} &nbsp;  </p>
+          <img class="add-collab-button" src="{!URLFOR($Resource.TaskyAssets, 'images/x.svg')}" ng-click="addCollaborator(currentProject.Id, user.Id)"></img>
+        </div>
+      </div>
+      <div id="switch-collab">
+        <img class="x" id="hide-switch-collab" src="{!URLFOR($Resource.TaskyAssets, 'images/x.svg')}"></img>
+        <div class="normal-title"> Change Assignee </div>
+        <div class="link">
+          <input type="text" id="add-collab-input" ng-model="searchText" placeholder="Search for a person..."/>
+        </div>
+        <div ng-repeat="collaborator in projectCollaborators | filter:searchText">
+          <div class="link" ng-show="currentTask.Assignee__c == collaborator.User__c">
+            <img class="image" src="{{idToUrlMap[collaborator.User__c]}}"></img>
+            <p class="link-title shorten"> {{collaborator.Name}} </p>
+            <p class="link-blurb shorten"> {{collaborator.User__r.Title}}  &nbsp;  </p>
+            <img class="assignee-button" src="{!URLFOR($Resource.TaskyAssets, 'images/check.svg')}" ng-click="assignTask(currentTask, collaborator)"></img>
+          </div>
+          <div class="link transparent" ng-show="currentTask.Assignee__c != collaborator.User__c">
+            <img class="image" src="{{idToUrlMap[collaborator.User__c]}}"></img>
+            <p class="link-title shorten"> {{collaborator.Name}} </p>
+            <p class="link-blurb shorten"> {{collaborator.User__r.Title}}  &nbsp;  </p>
+            <img class="assignee-button not-assignee" src="{!URLFOR($Resource.TaskyAssets, 'images/check.svg')}" ng-click="assignTask(currentTask, collaborator)"></img>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<script>
+/** Angular Script */
+var checklistApp = angular.module('taskyApp', []);
+checklistApp.controller('ProjectCtrl', function($scope) {
+  /** An array of Projects. */
+  $scope.projects = [];
+  /** An array of Tasks. */
+  $scope.tasks = [];
+  /** The current task we are reviewing. */
+  $scope.currentTask = {};
+  /** The list of all users in the org, */
+  $scope.users = [];
+  /** List of all collaborators in a project. */
+  $scope.projectCollaborators = [];
+  /** Map of Ids to Url. */
+  $scope.idToUrlMap= {};
+  /** Set of User Ids. */
+  $scope.userIds = {};
+  /** The current project. */
+  $scope.currentProject;
+  /** Whether or not the user wants to see all tasks. */
+  $scope.all = true;
+  /** Whether or not to use stream updates. */
+  $scope.streamUpdate = true;
+  /** True if we can go to the create view. */
+  $scope.creatable = true;
+
+
+  $scope.showTaskMenu = function(task) {
+    $scope.currentTask = task;
+    $('.' + task.Id).animate({"left":"0"}, 200);
+  }
+
+  $scope.hideTaskMenu = function(task) {
+    $('.' + task.Id).animate({"left":"100%"}, 200);
+  }
+
+  $scope.sOneCreate = function(type) {
+    if ($scope.creatable) {
+      $scope.creatable = false;
+      if((typeof sforce != 'undefined') && (sforce != null)) {
+        sforce.one.createRecord(type);
+      } else if (type == 'Tasky_Project__c'){
+        window.location.assign('{!URLFOR($Action.Tasky_Project__c.New)}');
+      } else {
+        window.location.assign('{!URLFOR($Action.Tasky_Task__c.New)}');
+      }
+      setTimeout(function(){$scope.creatable = true; $scope.$apply();}, 2000);
+    }
+  }
+
+  var getUserImages = function() {
+    var keys = Object.keys($scope.userIds);
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.getPhotoes}',
+      keys,
+      function(result, event) {
+        if (event.status) {
+          for(var i = 0; i < result.length; i++) {
+            $scope.idToUrlMap[keys[i]] = result[i];
+          }
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      })
+  }
+
+  /** Gets all the Collaborators in a project. */
+  var getProjectCollaborators = function(projectId) {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.getProjectCollaborators}',
+      projectId,
+      function(result, event) {
+        if (event.status) {
+          $scope.projectCollaborators = result;
+          for (var i = 0; i < result.length; i++) {
+            $scope.userIds[result[i].User__c] = true;
+          }
+          getUserImages();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Gets all currentProjects. */
+  var getProjects = function() {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.getProjects}',
+      function(result, event) {
+        if (event.status) {
+          $scope.projects = result;
+          for (var i = 0; i < result.length; i++) {
+            $scope.userIds[result[i].CreatedById] = true;
+          }
+          getUserImages();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Runs getProjects() */
+  getProjects();
+
+  /** Transition to a PROJECT. */
+  $scope.projectTransition = function(project) {
+    $scope.currentProject = project;
+    setSection($('#one'), $('#one-overall'));
+    getProjectCollaborators(project.Id);
+  }
+
+  /** Gets all the Tasks in project with Id PROJECTID. */
+  $scope.getTasks = function(projectId, transition) {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.getTasks}',
+      projectId,
+      function(result, event) {
+        if (event.status) {
+          $scope.tasks = result;
+          for (var i = 0; i < result.length; i++) {
+            var task = result[i];
+            if (task.Assignee__c) {
+              $scope.userIds[task.Assignee__c] = true;
+            }
+          }
+          $scope.getOrgUsers(projectId);
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Select a collaborator for a TASK. */
+  $scope.updateAssigneeNav = function(task) {
+    $scope.currentTask = task;
+    switchCollab();
+  }
+
+  /** Strips task to allow it to be inserted to database. */
+  var stripTask = function(task) {
+    copy = {};
+    copy.Due_Date__c = task.Due_Date__c;
+    copy.Detail__c = task.Detail__c;
+    copy.Id = task.Id;
+    copy.Name = task.Name;
+    copy.Project__c = task.Project__c;
+    copy.Status__c = task.Status__c;
+    copy.Assignee__c = task.Assignee__c;
+    return copy;
+  }
+
+  /** Assigns TASK to COLLABORATOR. */
+  $scope.assignTask = function(task, collaborator) {
+    $('#switch-collab').animate({"opacity":"0"}, 100);
+    $('#switch-collab').animate({"top":"50%"}, 1);
+    $('#switch-collab').animate({"left":"50%"}, 1);
+    $('#switch-collab').animate({"bottom":"50%"}, 1);
+    $('#switch-collab').animate({"right":"50%"}, 1);
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.assignTask}',
+      angular.copy(task),
+      collaborator.User__c,
+      function(result, event) {
+        if (event.status) {
+          $scope.currentTask.Assignee__c = result.Assignee__c;
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Updates the STATUS of Task with Id TASKID. */
+  $scope.updateTaskStatus = function(task, status) {
+    $('#' + task.Id).animate({right: "-100%"}, 200).animate({height: "0px", padding: "0px", border: "0px"}, 200);
+    $scope.streamUpdate = false;
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.updateTaskStatus}',
+      stripTask(task),
+      status,
+      function(result, event) {
+        if (event.status) {
+          $scope.tasks = result;
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Returns all users in the org that are in project with Id PROJID. */
+  $scope.getOrgUsers = function(projId) {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.getOrgUsers}',
+      projId,
+      function(result, event) {
+        if (event.status) {
+          $scope.users = result;
+         for(var i = 0; i < result.length; i++) {
+            $scope.userIds[result[i].Id] = true;
+          }
+          getUserImages();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Adds a collaborator that ties the user with Id USERID to a
+  *  Project with Id PROJECTID. */
+  $scope.addCollaborator = function(projectId, userId) {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.addCollaborator}',
+      projectId,
+      userId,
+      function(result, event) {
+        if (event.status) {
+          $scope.users = result[0];
+          $scope.projectCollaborators = result[1];
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Removes the Collaborator with Id COLLABORATOR ID from a Project. */
+  $scope.removeCollaborator = function(collaboratorId) {
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.removeCollaborator}',
+      collaboratorId,
+      function(result, event) {
+        if (event.status) {
+          $scope.users = result[0];
+          $scope.projectCollaborators = result[1];
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      });
+  }
+
+  /** Deletes the TASK. */
+  $scope.deleteTask = function(task) {
+    $('#' + task.Id).animate({opacity: "0"}, 200).animate({height: "0px", padding: "0px", border: "0px"}, 200);
+    delete task.$$hashKey;
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.deleteTask}',
+      task,
+      function(result, event) {
+        if (event.status) {
+          $scope.tasks = result;
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      }
+    );
+  }
+
+  /** Flips the priority of the TASK. */
+  $scope.flipPriority = function(task) {
+    $scope.hideTaskMenu(task);
+    delete task.$$hashKey;
+    task.Priority__c = !task.Priority__c;
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ProjectController.flipPriority}',
+      task,
+      function(result, event) {
+        if (event.status) {
+          $scope.tasks = result;
+          $scope.$apply();
+        } else if (event.type === 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('error');
+        }
+      }
+    );
+  }
+
+  /** Navigates to the view page of the object with ID. */
+  $scope.sOneNav = function(Id) {
+    if((typeof sforce != 'undefined') && (sforce != null)) {
+      sforce.one.navigateToSObject(Id);
+    } else {
+      window.location.assign("/" + Id);
+    }
+  }
+
+  /** Goes to the edit page. */
+  $scope.editNav = function(task) {
+    if((typeof sforce != 'undefined') && (sforce != null)) {
+      sforce.one.editRecord(task.Id);
+    } else {
+      window.location.assign("/" + task.Id + "/e");
+    }
+  }
+
+  /** Goes to the edit page. */
+  $scope.chatterNav = function(task) {
+    if((typeof sforce != 'undefined') && (sforce != null)) {
+      sforce.one.navigateToSObject(task.Id, "Chatter");
+    } else {
+      window.location.assign("/" + task.Id);
+    }
+  }
+
+  var toUTCDate = function(date) {
+    var _utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+    return _utc;
+  }
+
+  $scope.millisToUTCDate = function(millis){
+    if (millis) {
+      return toUTCDate(new Date(millis));
+    } else {
+      return '';
+    }
+  }
+
+  $.cometd.init({
+    url: window.location.protocol+'//'+window.location.hostname+'/cometd/24.0/',
+    requestHeaders: { Authorization: 'OAuth {!$Api.Session_ID}'}
+  });
+
+  // Subscribe to a topic. JSON-encoded update will be returned
+  // in the callback
+
+  $.cometd.subscribe('/topic/ProjectUpdates', function(message) {
+    getProjects();
+  });
+
+  $.cometd.subscribe('/topic/TaskUpdates', function(message) {
+    if ($scope.streamUpdate) {
+      $scope.getTasks($scope.currentProject.Id);
+    } else {
+      $scope.streamUpdate = true;
+    }
+  });
+});
+
+checklistApp.filter('listType', function() {
+  return function(input, type) {
+    finalList = [];
+    for (var i = 0; i < input.length; i++) {
+      if (input[i].Status__c == type) {
+        finalList.push(input[i]);
+      }
+    }
+    if (type == 'Done') {
+      finalList.sort(function(a, b) { return b.Completed_Date__c - a.Completed_Date__c})
+    }
+    return finalList;
+  }
+});
+
+checklistApp.filter('allFilter', function() {
+  return function(input, scope, user) {
+    finalList = [];
+    if (scope.all) {
+      return input
+    }
+    for (var i = 0; i < input.length; i++) {
+      if (input[i].Assignee__c && (input[i].Assignee__c == '{!$User.Id}')) {
+        finalList.push(input[i]);
+      }
+    }
+    return finalList;
+  }
+});
+</script>
+</apex:page>

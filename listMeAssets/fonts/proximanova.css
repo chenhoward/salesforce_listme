@@ -1,0 +1,29 @@
+/* ==========================================================================
+ 
+   FONTS
+   - Proxima Nova Soft [Regular, Semibold, Medium, Bold]
+
+   ========================================================================== */
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("proximanovasoft-regular-webfont.ttf") format('truetype');
+  font-weight: 300;
+  font-style: normal; }
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("proximanovasoft-medium-webfont.ttf") format('truetype');
+  font-weight: 500;
+  font-style: normal; }
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("proximanovasoft-semibold-webfont.ttf") format('truetype');
+  font-weight: 700;
+  font-style: normal; }
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("proximanovasoft-bold-webfont.ttf") format('truetype');
+  font-weight: 900;
+  font-style: normal; }

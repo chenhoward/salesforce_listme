@@ -10,9 +10,74 @@ id="todo"
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
   <apex:includeScript value="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"/>
-  <!-- using Tasky's Proxima Nova -->
-  <apex:stylesheet value="{!URLFOR($Resource.TaskyAssets, 'fonts/proximanova.css')}"/>
-  <!-- End -->
+  <apex:stylesheet value="{!URLFOR($Resource.listMeAssets, 'fonts/proximanova.css')}"/>
+  <script type="text/javascript">
+  function setSection(to, from)
+  {
+    if (!(to.hasClass("active")))
+    {
+      if (to.is("#one")) {
+        $("#one-tab").addClass("active-tab");
+        $("#one-tab .on").css("display","initial");
+        $("#one-tab .off").css("display","none");
+      }
+      if (from.is("#one")) {
+        $("#one-tab").removeClass("active-tab");
+        $("#one-tab .off").css("display","initial");
+        $("#one-tab .on").css("display","none");
+      }
+      if (to.is("#two")) {
+        $("#two-tab").addClass("active-tab");
+        $("#two-tab .on").css("display","initial");
+        $("#two-tab .off").css("display","none");
+      }
+      if (from.is("#two")) {
+        $("#two-tab").removeClass("active-tab");
+        $("#two-tab .off").css("display","initial");
+        $("#two-tab .on").css("display","none");
+      }
+      if (to.is("#three")) {
+        $("#three-tab").addClass("active-tab");
+        $("#three-tab .on").css("display","initial");
+        $("#three-tab .off").css("display","none");
+      }
+      if (from.is("#three")) {
+        $("#three-tab").removeClass("active-tab");
+        $("#three-tab .off").css("display","initial");
+        $("#three-tab .on").css("display","none");
+      }
+      from.animate({"left":"-100%"},100,'linear')
+      to.animate({"left":"0%"},100,'linear',function()
+      {
+        from.css("left","100%");
+        from.removeClass("active");
+        to.addClass("active");
+      });
+    }
+  }
+  $(document).ready(function(){
+    $('a').on('click', function(event)
+    {
+      var sectionId = $(this).attr("data-section"),
+      $toSlide= $("#container section#"+sectionId),
+      $fromSlide= $('.active');
+      setSection($toSlide,$fromSlide);
+    });
+    $('.img-right').on('click', function(event)
+    {
+      $(this).css("background","#2f92d0");
+      $(this).parent().animate({right:"-100%"}, 200).animate({height:"0px",padding:"0px",border:"0px"},200);
+    });
+    $('#one-overall .link').on('click', function(event)
+    {
+      $('#one-overall').animate({left:"-100%",right:"100%"},200);
+    });
+    $('.arrow-back-button').on('click', function(event)
+    {
+      $('#one-overall').animate({left:"0",right:"0"},200);
+    });
+  });
+  </script>
   <style type="text/css">
   @-webkit-keyframes bugfix {
     from { fill: 0; }
@@ -38,15 +103,50 @@ id="todo"
     outline: none;
   }
 
+  h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 24px;
+    font-family: ProximaNova, sans-serif;
+    font-weight: 600;
+    font-style: normal;
+    color: #2f92d0; 
+  }
+
   p {
     padding: 0px;
     margin: 0px;
   }
 
-  #container {
+  strong {
+    font-family: ProximaNova, sans-serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  #header-overall {
+    height: 160px;
+    width: 100%;
+    background-image: url(http://goo.gl/W6QMrW);
+    background-size: cover;
+  }
+
+  #one-overall {
     position: absolute;
+    z-index: 2;
     top: 0px;
     left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  #container {
+    z-index: 0;
+    position: absolute;
+    top: 0px;
+    left: 300px;
     right: 0px;
     bottom: 0px;
     overflow: hidden;
@@ -54,17 +154,14 @@ id="todo"
   }
 
   #container section {
+    box-sizing: border-box;
     position: absolute;
     width: 100%;
     height: 100%;
     left: 100%;
-    overflow: scroll;
-    background: #fff;
-    -webkit-overflow-scrolling: touch;
   }
 
   #container section:nth-child(1) {
-    position: absolute;
     left: 0%;
   }
 
@@ -79,11 +176,65 @@ id="todo"
     text-align: left;
     font-size: 18px;
     padding: 20px;
+    padding-right: 0px;
     height: 80px;
     box-shadow: -1px -1px #cccccc;
     border-bottom: 1px solid #cccccc;
     background: #FFF;
     width: 100%;
+  }
+
+  .link .img-left {
+    float: left;
+    width: 46px;
+    height: 46px;
+    margin-left: -3px;
+    margin-right: 16px;
+    margin-top: -2px;
+  }
+
+  .link .img-right {
+    float: right;
+    width: 46px;
+    height: 46px;
+    margin-left: -3px;
+    margin-right: 16px;
+    margin-top: -2px;
+  }
+
+  .arrow-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 10px; 
+    height: 10px;
+    -webkit-transform: rotate(-135deg);
+    border-top: 3px solid #999;
+    border-right: 3px solid #999;
+  }
+
+  .arrow-back-button {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 40px; 
+    height: 40px;
+    background: transparent;
+  }
+
+  .arrow-right {
+    float: right;
+    margin-top: -25px;
+    width: 10px; 
+    height: 10px;
+    -webkit-transform: rotate(45deg);
+    border-top: 3px solid #cccccc;
+    border-right: 3px solid #cccccc;
+    margin-right: 25px;
+  }
+
+  .list-header {
+    margin: 7px;
   }
 
   .link-title {
@@ -96,24 +247,152 @@ id="todo"
     font-size: 14px;
   }
 
+  #navbar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 300px;
+    height: 100%;
+    z-index: 1;
+    background: #f3f3f3;
+    border-right: 1px solid #aaaaaa;
+  }
+
+  #navbar_title {
+    box-sizing: border-box;
+    display: block;
+    float: left;
+    text-decoration: none;
+    font-size: 1em;
+    color: #333;
+    padding-top: 125px;
+    padding-left: 25px;
+    width: 300px;
+    height: 225px;
+    border-bottom: 1px solid #aaaaaa;
+  }
+
+  .tab {
+    box-sizing: border-box;
+    display: block;
+    float: left;
+    text-decoration: none;
+    color: #333;
+    width: 300px;
+    height: 60px;
+    border-bottom: 1px solid #aaaaaa;
+  }
+
+  .tab img {
+    float: left;
+    height: 30px;
+    padding: 15px;
+  }
+
+  .tab span {
+    float: left;
+    margin-top: 20px;
+  }
+
+  .active-tab {
+    border-right: 5px solid #2f92d0;
+    color: #2f92d0;
+  }
+
+  .off { display: initial; }
+
+  .on { display: none; }
+
+  .blue { color: #2f92d0; }
+
   html { height: 100%; margin: 0; padding: 0;}
 
   body { height: 100%; margin: 0; padding: 0 }
   </style>
 </head>
 <body>
+  <div id="one-overall">
+    <div id="header-overall"></div>
+    <div class="link">
+        <h1 class="list-header"> My Events </h1>
+      </div>
+    <a class="link" data-section="one" href="#">
+      <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
+      <p class="link-title"> Event 1 </p>
+      <p class="link-blurb"> 3 people </p>
+      <div class="arrow-right"></div>
+    </a>
+    <a class="link" data-section="one" href="#">
+      <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
+      <p class="link-title"> Event 2 </p>
+      <p class="link-blurb"> 103 people </p>
+      <div class="arrow-right"></div>
+    </a>
+    <a class="link" data-section="one" href="#">
+      <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
+      <p class="link-title"> Event 3 </p>
+      <p class="link-blurb"> 23 people </p>
+      <div class="arrow-right"></div>
+    </a>
+  </div>
+  <div id="navbar">
+    <div class="arrow-back-button">
+      <div class="arrow-back"></div>
+    </div>
+    <div id="navbar_title">
+      <p> You are now managing: <br/> <strong class="blue"> Event 1 </strong> </p>
+    </div>
+    <a id="one-tab" class="tab active-tab" data-section="one" href="#">
+      <img class="off" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'waitlist.svg')}"/>
+      <img class="on" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'waitlist-alt.svg')}"/>
+      <span> Waitlist </span>
+    </a>
+    <a id="two-tab" class="tab" data-section="two" href="#">
+      <img class="off" src="{!URLFOR($Resource.listMeAssets, 'stats.svg')}"/>
+      <img class="on" src="{!URLFOR($Resource.listMeAssets, 'stats-alt.svg')}"/>
+      <span> Statistics </span>
+    </a>
+    <a id="three-tab" class="tab" data-section="three" href="#">
+      <img class="off" src="{!URLFOR($Resource.listMeAssets, 'settings.svg')}"/>
+      <img class="on" src="{!URLFOR($Resource.listMeAssets, 'settings-alt.svg')}"/>
+      <span> Settings </span>
+    </a>
+  </div>
   <div id="container">
-    <section id="one">
+    <section id="one" class="active">
       <div class="link">
-        <p class="link-title"> Person 5 </p>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'expand.svg')}"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
+        <h1 class="list-header"> Waitlist </h1>
+      </div>
+      <div class="link">
+        <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+        <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}"/>
+        <p class="link-title blue"> Person 1 </p>
+        <p class="link-blurb blue"> Next! </p>
+      </div>
+      <div class="link">
+        <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+        <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}"/>
+        <p class="link-title"> Person 2 </p>
         <p class="link-blurb"> Estimated wait time: 15 minutes </p>
       </div>
       <div class="link">
-        <p class="link-title"> Person 6 </p>
+        <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+        <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}"/>
+        <p class="link-title"> Person 3 </p>
         <p class="link-blurb"> Estimated wait time: 30 minutes </p>
       </div>
     </section>
     <section id="two">
+    </section>
+    <section id="three">
     </section>
   </div>
 </body>
