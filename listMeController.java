@@ -62,4 +62,10 @@ global class ListMeController {
         return times;
     }
 
+    /** Gets the off times for the event with Id EVENTID. */
+    @RemoteAction
+    global static ListMe_Customer__c[] getOffTimes(Id eventId) {
+        ListMe_Customer__c[] customers = [SELECT CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c = false AND Dropped__c = false ORDER BY CreatedDate ASC];
+        return customers;
+    }
 }

@@ -62,7 +62,9 @@ applyBodyTag="false"
   </apex:repeat>
 
   <button type="submit"> Submit Form </button>
-  <button type="button" ng-click="createLineGraph(currentEvent)"> Get line graph </button>
+  <button type="button" ng-click="createLineGraph(currentEvent, true)"> Get line graph </button>
+  <button type="button" ng-click="createLineGraph(currentEvent, false)"> Get line graph 2</button>
+
 </form>
 
 </body>
@@ -154,13 +156,30 @@ listMeApp.controller('EventController', function($scope) {
       );
   }
 
-  $scope.createLineGraph = function(event) {
+  $scope.createLineGraph = function(event, all) {
+    var remoteAct;
+    if (all) {
+      remoteAct = '{!$RemoteAction.ListMeController.getSignUpTimes}';
+    } else {
+      remoteAct = '{!$RemoteAction.ListMeController.getOffTimes}';
+    }
     Visualforce.remoting.Manager.invokeAction(
-      '{!$RemoteAction.ListMeController.getSignUpTimes}',
+      remoteAct,
       event.Id,
       function(result, event) {
         if (event.status) {
           data = result;
+          if (!all) {
+            for (key in data) {
+              var obj = data[key];
+              obj.totalTime = obj.CreatedDate + (obj.Wait_Time__c * 60);
+            }
+            data.sort(function(a, b) {return a.totalTime - b.totalTime});
+            for (var i = 0; i < data.length - 1; i++) {
+              console.log(data[i].totalTime - data[i+1].totalTime);
+            }
+          }
+          console.log(data);
           var margin = {top: 20, right: 20, bottom: 30, left: 50},
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom;
@@ -181,9 +200,16 @@ listMeApp.controller('EventController', function($scope) {
           .scale(y)
           .orient("left");
 
-          var line = d3.svg.line()
-          .x(function(d) { return x(new Date(d)); })
-          .y(function(d, i) { return y(i); });
+          var line;
+          if (all) {
+            line = d3.svg.line()
+            .x(function(d) { return x(d); })
+            .y(function(d, i) { return y(i); });
+          } else {
+            line = d3.svg.line()
+            .x(function(d) { return x(d.totalTime); })
+            .y(function(d) { return y(d.Wait_Time__c); });
+          }
 
           var svg = d3.select("body").append("svg")
           .attr("width", width + margin.left + margin.right)
@@ -191,8 +217,13 @@ listMeApp.controller('EventController', function($scope) {
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          x.domain(d3.extent(data, function(d) { return d }));
-          y.domain(d3.extent(data, function(d, i) { return i }));
+          if (all) {
+            x.domain(d3.extent(data, function(d) { return d }));
+            y.domain(d3.extent(data, function(d, i) { return i }));
+          } else {
+            x.domain(d3.extent(data, function(d) { return d.totalTime}));
+            y.domain(d3.extent(data, function(d) { return d.Wait_Time__c }));
+          }
 
           svg.append("g")
           .attr("class", "x axis")
