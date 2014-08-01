@@ -47,8 +47,7 @@ id="todo"
         $("#three-tab .on").css("display","none");
       }
       from.animate({"left":"-100%"},100,'linear')
-      to.animate({"left":"0%"},100,'linear',function()
-      {
+      to.animate({"left":"0%"},100,'linear',function() {
         from.css("left","100%");
         from.removeClass("active");
         to.addClass("active");
@@ -56,36 +55,36 @@ id="todo"
     }
   }
   $(document).ready(function(){
-    $('a').on('click', function(event)
-    {
+    $('a').on('click', function(event) {
       var sectionId = $(this).attr("data-section"),
       $toSlide= $("#container section#"+sectionId),
       $fromSlide= $('.active');
       setSection($toSlide,$fromSlide);
     });
-    $('.img-right').on('click', function(event)
-    {
+    $('.img-right').on('click', function(event) {
       $(this).css("background","#2f92d0");
       $(this).parent().animate({right:"-100%"}, 200).animate({height:"0px",padding:"0px",border:"0px"},200);
     });
-    $('#one-overall .link').on('click', function(event)
-    {
+    $('#one-overall .link').on('click', function(event) {
       $('#one-overall').animate({left:"-100%",right:"100%"},200);
     });
-    $('.arrow-back-button').on('click', function(event)
-    {
+    $('.arrow-back-button').on('click', function(event) {
       $('#one-overall').animate({left:"0",right:"0"},200);
     });
-    $('#expand-list').on('click', function(event)
-    {
+    $('#show-add').on('click', function(event) {
+      $('#add').animate({"top":"0"}, 200);
+    });
+    $('#hide-add').on('click', function(event) {
+      $('#add').animate({"top":"100%"}, 200);
+    });
+    $('#expand-list').on('click', function(event) {
       $('#list').animate({"opacity":"1"}, 1);
       $('#list').animate({"top":"0"}, { queue: false, duration: 200 });
       $('#list').animate({"left":"0"}, { queue: false, duration: 200 });
       $('#list').animate({"bottom":"0"}, { queue: false, duration: 200 });
       $('#list').animate({"right":"0"}, { queue: false, duration: 200 });
     });
-    $('#hide-list').on('click', function(event)
-    {
+    $('#hide-list').on('click', function(event) {
       $('#list').animate({"opacity":"0"}, 200);
       $('#list').animate({"top":"50%"}, 1);
       $('#list').animate({"left":"50%"}, 1);
@@ -148,7 +147,7 @@ id="todo"
   }
 
   #one-overall {
-    position: absolute;
+    position: fixed;
     z-index: 2;
     top: 0px;
     left: 0px;
@@ -158,8 +157,17 @@ id="todo"
     background: #fff;
   }
 
+  #add {
+    position: fixed;
+    z-index: 3;
+    top: 100%;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+  }
+
   #list {
-    position: absolute;
+    position: fixed;
     z-index: 3;
     opacity: 0;
     top: 50%;
@@ -348,7 +356,109 @@ id="todo"
 
   .on { display: none; }
 
+  .question {
+    overflow: auto;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    display: block;
+    color: #4d4d4d;
+    text-decoration: none;
+    text-align: left;
+    font-size: 18px;
+    padding: 12px 0px 0px 60px;
+    background: #FFF;
+    width: 100%;
+  }
+
+  input, textarea, select {
+    font-family: ProximaNova, sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    color: #4d4d4d;
+    width: 70%;
+    margin-top: 4px;
+    padding: 4px;
+    padding-left: 10px;
+    outline: none;
+    border: 1px solid #999999;
+    margin-right: 20%;
+    max-width: 800px;
+    background: transparent;
+    border-radius: 5px;
+    -webkit-appearance: none;
+  }
+
+  .short {
+    width: 40%;
+  }
+
+  textarea {
+    height: 150px;
+    padding-top: 10px;
+  }
+
+  select {
+    background: url("arrow-bottom.png") no-repeat right;
+    background-size: 60px 60px;
+  }
+
+  .submit {
+    position: absolute;
+    bottom: 0;
+    float: left;
+    font-family: ProximaNova, sans-serif;
+    font-weight: 500;
+    max-width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    display: block;
+    color: #FFF;
+    text-decoration: none;
+    text-align: center;
+    font-size: 24px;
+    padding: 25px;
+    padding-bottom: 24px;
+    border-radius: 0px;
+    border: none;
+    margin: 0px;
+    background: #2f92d0;
+    width: 100%;
+  }
+
   .blue { color: #2f92d0; }
+
+  .zoom .header-overall { height: 240px; }
+
+  .zoom .img-left {
+    width: 69px;
+    height: 69px;
+    margin-left: -4px;
+    margin-right: 24px;
+    margin-top: -4px;
+  }
+
+  .zoom .link {
+    font-size: 24px;
+    padding: 30px;
+    padding-right: 0px;
+    height: 120px;
+    box-shadow: -1px -1px #cccccc;
+  }
+
+  .zoom .list-header {
+    margin: 11px;
+    font-size: 36px;
+  }
+
+  .zoom .link-title {
+    padding-top: 3px;
+  }
+
+  .zoom .link-blurb {
+    margin-top: -3px;
+    font-size: 21px;
+  }
+
 
   html { height: 100%; margin: 0; padding: 0;}
 
@@ -407,7 +517,7 @@ id="todo"
     <section id="one" class="active">
       <div class="link">
         <img id="expand-list" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'expand.svg')}"/>
-        <img class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
+        <img id="show-add" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
         <h1 class="list-header"> Waitlist </h1>
       </div>
       <div class="link">
@@ -440,7 +550,31 @@ id="todo"
     <section id="three">
     </section>
   </div>
-  <div id="list">
+  <div id="add">
+    <div class="link">
+      <img class="img-right-main" id="hide-add" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"></img>
+      <h1 class="list-header"> Add Person </h1>
+    </div>
+    <br/><br/>
+    <div class="question"> 
+      <p> Name </p>
+      <input class="short" type="text" name="text"></input>
+    </div>
+    <div class="question"> 
+      <p> Phone Number </p>
+      <input class="short" type="text" name="text"></input>
+    </div>
+    <div class="question"> 
+      <p> Email Address </p>
+      <input class="short" type="text" name="text"></input>
+    </div>
+    <div class="question"> 
+      <p> Request </p>
+      <textarea></textarea>
+    </div>
+    <input class="submit" type="button" value="Submit"></input>
+  </div>
+  <div class="zoom" id="list">
     <div class="header-overall"></div>
     <img class="x" id="hide-list" src="{!URLFOR($Resource.listMeAssets, 'clear-x.svg')}"></img>
     <div class="link">
