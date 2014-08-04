@@ -551,16 +551,16 @@ applyBodyTag="false"
         <div ng-show="$index == 0">
           <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
           <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
-          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
           <p class="link-title blue"> {{customer.Name}} </p>
           <p class="link-blurb blue"> Next! </p>
         </div>
         <div ng-show="$index != 0">
           <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
           <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
-          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
           <p class="link-title"> {{customer.Name}} </p>
           <p class="link-blurb" ng-show="$index < 5"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
         </div>
@@ -574,7 +574,7 @@ applyBodyTag="false"
   <div id="add">
     <div class="link">
       <img class="img-right-main" id="hide-add" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"></img>
-      <h1 class="list-header"> Add Person </h1>
+      <h1 class="list-header"> Personal Information </h1>
     </div>
     <br/><br/>
     <form>
@@ -680,6 +680,7 @@ listMeApp.controller('EventController', function($scope) {
         if (event.status) {
           $scope.customers.push(result);
           $scope.$apply();
+          $('#add').animate({"top":"100%"}, 200);
           getEvents();
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
@@ -690,11 +691,12 @@ listMeApp.controller('EventController', function($scope) {
       );
   }
 
-  $scope.removeCustomer = function(index, customer) {
+  $scope.removeCustomer = function(index, customer, drop) {
     $scope.customers.splice(index, 1);
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.removeCustomer}',
       customer.Id,
+      drop,
       function(result, event) {
         if (event.status) {
 

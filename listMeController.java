@@ -38,14 +38,15 @@ global class ListMeController {
         return customer;
     }
 
-    /** Removes the customer with Id CUSTOMERID. */
+    /** Removes the customer with Id CUSTOMERID and determines if the DROPped. */
     @RemoteAction
-    global static ListMe_Customer__c removeCustomer(Id customerId) {
+    global static ListMe_Customer__c removeCustomer(Id customerId, Boolean drop) {
         ListMe_Customer__c customer;
         if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
             customer = [SELECT Name, CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Id =: customerId];
             customer.Wait_Time__c = (System.now().getTime() - customer.CreatedDate.getTime())/ 60000;
             customer.Active__c = false;
+            customer.Dropped__c = drop;
             update customer;
         }
         return customer;
