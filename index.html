@@ -516,24 +516,6 @@ applyBodyTag="false"
       <div class="arrow-right"></div>
      </div>
     </a>
-    <a class="link" data-section="one" href="#">
-      <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
-      <p class="link-title"> Event 1 </p>
-      <p class="link-blurb"> 3 people </p>
-      <div class="arrow-right"></div>
-    </a>
-    <a class="link" data-section="one" href="#">
-      <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
-      <p class="link-title"> Event 2 </p>
-      <p class="link-blurb"> 103 people </p>
-      <div class="arrow-right"></div>
-    </a>
-    <a class="link" data-section="one" href="#">
-      <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
-      <p class="link-title"> Event 3 </p>
-      <p class="link-blurb"> 23 people </p>
-      <div class="arrow-right"></div>
-    </a>
   </div>
   <div id="navbar">
     <div class="arrow-back-button">
@@ -598,7 +580,11 @@ applyBodyTag="false"
     <form>
       <apex:repeat value="{!$ObjectType.Contact.FieldSets.ListMe}" var="f">
         <div class="question">
-          <p> {!f.Label} </p>
+          <p>
+            {!f.Label}
+            <b ng-show="{!f.Required}" style="font-size:24px; color:red;"> * </b>
+          </p>
+
           <input class="short" type="{!f.Type}" name="text" ng-model="customer.{!f.FieldPath}" isRequired="{!f.Required}"></input>
         </div>
       </apex:repeat>
