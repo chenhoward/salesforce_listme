@@ -599,23 +599,17 @@ applyBodyTag="false"
       <h1 class="list-header"> Add Person </h1>
     </div>
     <br/><br/>
-    <div class="question"> 
-      <p> Name </p>
-      <input class="short" type="text" name="text"></input>
-    </div>
-    <div class="question"> 
-      <p> Phone Number </p>
-      <input class="short" type="text" name="text"></input>
-    </div>
-    <div class="question"> 
-      <p> Email Address </p>
-      <input class="short" type="text" name="text"></input>
-    </div>
-    <div class="question"> 
-      <p> Request </p>
-      <textarea></textarea>
-    </div>
-    <input class="submit" type="button" value="Submit"></input>
+    <form>
+      <apex:repeat value="{!$ObjectType.Contact.FieldSets.ListMe}" var="f">
+        <div class="question">
+          <p> {!f.Label} </p>
+          <input class="short" type="{!f.Type}" name="text" ng-model="customer.{!f.FieldPath}" isRequired="{!f.Required}"></input>
+        </div>
+      </apex:repeat>
+    <input class="submit" type="button" value="Submit" ng-click="createCustomer(customer, currentEvent)"></input>
+    <button type="button" ng-click="createLineGraph(currentEvent, true)"> Get line graph </button>
+    <button type="button" ng-click="createLineGraph(currentEvent, false)"> Get line graph 2</button>
+    </form>
   </div>
   <div class="zoom" id="list">
     <div class="header-overall"></div>
