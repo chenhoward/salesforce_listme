@@ -716,9 +716,11 @@ listMeApp.controller('EventController', function($scope) {
 
   $scope.createCustomer = function(customer, event) {
     for (var key in customer) {
-      var dateValue = Date.parse(customer[key]);
-      if (!isNaN(dateValue)) {
-        customer[key] = dateValue;
+      if (isNaN(customer[key])) {
+        var dateValue = Date.parse(customer[key]);
+        if (!isNaN(dateValue)) {
+          customer[key] = dateValue;
+        }
       }
     }
     Visualforce.remoting.Manager.invokeAction(
