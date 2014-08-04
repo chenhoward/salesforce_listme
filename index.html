@@ -501,9 +501,6 @@ applyBodyTag="false"
 
 <body ng-controller='EventController'>
 
-
-
-
     <div id="one-overall">
     <div class="header-overall"></div>
     <div class="link">
@@ -513,7 +510,7 @@ applyBodyTag="false"
       <div ng-click="getActiveCustomers(event)">
       <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
       <p class="link-title"> {{event.Name}} </p>
-      <p class="link-blurb"> 3 people </p>
+      <p class="link-blurb"> {{event.Waiting_Customers__c}} people </p>
       <div class="arrow-right"></div>
      </div>
     </a>
@@ -541,7 +538,7 @@ applyBodyTag="false"
       <div class="arrow-back"></div>
     </div>
     <div id="navbar_title">
-      <p> You are now managing: <br/> <strong class="blue"> Event 1 </strong> </p>
+      <p> You are now managing: <br/> <strong class="blue"> {{currentEvent.Name}} </strong> </p>
     </div>
     <a id="one-tab" class="tab active-tab" data-section="one" href="#">
       <img class="off" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'waitlist.svg')}"/>
@@ -566,12 +563,12 @@ applyBodyTag="false"
         <img id="show-add" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
         <h1 class="list-header"> Waitlist </h1>
       </div>
-      <div class="link">
+      <div class="link" ng-repeat="customer in customers">
         <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
         <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}"/>
-        <p class="link-title blue"> Person 1 </p>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
+        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
+        <p class="link-title blue"> {{customer.Name}} </p>
         <p class="link-blurb blue"> Next! </p>
       </div>
       <div class="link">

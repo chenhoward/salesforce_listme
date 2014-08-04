@@ -4,7 +4,7 @@ global class ListMeController {
     /** Returns all events. */
     @RemoteAction
     global static ListMe_Event__c[] getEvents() {
-        ListMe_Event__c[] events= [SELECT Name, Id FROM ListMe_Event__c];
+        ListMe_Event__c[] events= [SELECT Name, Id, Waiting_Customers__c FROM ListMe_Event__c];
         return events;
     }
 
