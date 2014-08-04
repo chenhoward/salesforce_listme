@@ -585,7 +585,7 @@ applyBodyTag="false"
             <b ng-show="{!f.Required}" style="font-size:24px; color:red;"> * </b>
           </p>
 
-          <input class="short" type="{!f.Type}" name="text" ng-model="customer.{!f.FieldPath}" isRequired="{!f.Required}"></input>
+          <input class="short" type="{!f.Type}" name="text" ng-model="customer.{!f.FieldPath}" required="{!f.Required}"></input>
         </div>
       </apex:repeat>
     <input class="submit" type="button" value="Submit" ng-click="createCustomer(customer, currentEvent)"></input>
