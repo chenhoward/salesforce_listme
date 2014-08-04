@@ -729,6 +729,7 @@ listMeApp.controller('EventController', function($scope) {
         if (event.status) {
           $scope.customers.push(result);
           $scope.$apply();
+          getEvents();
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
         } else {
