@@ -510,7 +510,9 @@ applyBodyTag="false"
       <div ng-click="getActiveCustomers(event)">
       <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
       <p class="link-title"> {{event.Name}} </p>
-      <p class="link-blurb"> {{event.Waiting_Customers__c}} people </p>
+      <p class="link-blurb" ng-show="event.Waiting_Customers__c > 1"> {{event.Waiting_Customers__c}} people </p>
+      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 1"> 1 person </p>
+      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 0"> Empty </p>
       <div class="arrow-right"></div>
      </div>
     </a>
