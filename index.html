@@ -597,23 +597,19 @@ applyBodyTag="false"
     <div class="link">
       <h1 class="list-header"> Waitlist </h1>
     </div>
-    <div class="link">
-      <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
-      <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-      <p class="link-title blue"> Person 1 </p>
-      <p class="link-blurb blue"> Next! </p>
-    </div>
-    <div class="link">
-      <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
-      <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-      <p class="link-title"> Person 2 </p>
-      <p class="link-blurb"> Estimated wait time: 15 minutes </p>
-    </div>
-    <div class="link">
-      <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
-      <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-      <p class="link-title"> Person 3 </p>
-      <p class="link-blurb"> Estimated wait time: 30 minutes </p>
+    <div class="link" ng-repeat="customer in customers">
+      <div ng-show="$index == 0">
+        <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+        <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+        <p class="link-title blue"> {{customer.Name}} </p>
+        <p class="link-blurb blue"> Next! </p>
+      </div>
+      <div ng-show="$index != 0">
+        <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+        <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+        <p class="link-title"> {{customer.Name}} </p>
+        <p class="link-blurb"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
+      </div>
     </div>
   </div>
 </body>
