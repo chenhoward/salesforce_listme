@@ -578,7 +578,7 @@ applyBodyTag="false"
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
           <p class="link-title"> {{customer.Name}} </p>
-          <p class="link-blurb"> Next! </p>
+          <p class="link-blurb"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
         </div>
       </div>
       <div class="link">
