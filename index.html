@@ -564,12 +564,22 @@ applyBodyTag="false"
         <h1 class="list-header"> Waitlist </h1>
       </div>
       <div class="link" ng-repeat="customer in customers">
-        <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
-        <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
-        <p class="link-title blue"> {{customer.Name}} </p>
-        <p class="link-blurb blue"> Next! </p>
+        <div ng-show="$index == 0">
+          <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+          <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
+          <p class="link-title blue"> {{customer.Name}} </p>
+          <p class="link-blurb blue"> Next! </p>
+        </div>
+        <div ng-show="$index != 0">
+          <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
+          <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
+          <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
+          <p class="link-title"> {{customer.Name}} </p>
+          <p class="link-blurb"> Next! </p>
+        </div>
       </div>
       <div class="link">
         <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
