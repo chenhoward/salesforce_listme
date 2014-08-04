@@ -581,22 +581,6 @@ applyBodyTag="false"
           <p class="link-blurb"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
         </div>
       </div>
-      <div class="link">
-        <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
-        <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}"/>
-        <p class="link-title"> Person 2 </p>
-        <p class="link-blurb"> Estimated wait time: 15 minutes </p>
-      </div>
-      <div class="link">
-        <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
-        <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"/>
-        <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}"/>
-        <p class="link-title"> Person 3 </p>
-        <p class="link-blurb"> Estimated wait time: 30 minutes </p>
-      </div>
     </section>
     <section id="two">
     </section>
@@ -617,8 +601,6 @@ applyBodyTag="false"
         </div>
       </apex:repeat>
     <input class="submit" type="button" value="Submit" ng-click="createCustomer(customer, currentEvent)"></input>
-    <button type="button" ng-click="createLineGraph(currentEvent, true)"> Get line graph </button>
-    <button type="button" ng-click="createLineGraph(currentEvent, false)"> Get line graph 2</button>
     </form>
   </div>
   <div class="zoom" id="list">
