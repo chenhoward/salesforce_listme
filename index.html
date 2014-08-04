@@ -510,9 +510,9 @@ applyBodyTag="false"
       <div ng-click="getActiveCustomers(event)">
       <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
       <p class="link-title"> {{event.Name}} </p>
-      <p class="link-blurb" ng-show="event.Waiting_Customers__c > 1"> {{event.Waiting_Customers__c}} people </p>
-      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 1"> 1 person </p>
-      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 0"> Empty </p>
+      <p class="link-blurb" ng-show="event.Waiting_Customers__c > 1"> {{event.Waiting_Customers__c}} people waiting</p>
+      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 1"> 1 person waiting</p>
+      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 0"> Nobody waiting </p>
       <div class="arrow-right"></div>
      </div>
     </a>
@@ -527,7 +527,7 @@ applyBodyTag="false"
     <a id="one-tab" class="tab active-tab" data-section="one" href="#">
       <img class="off" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'waitlist.svg')}"/>
       <img class="on" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'waitlist-alt.svg')}"/>
-      <span> Waitlist </span>
+      <span> Current Waitlist </span>
     </a>
     <a id="two-tab" class="tab" data-section="two" href="#" ng-click="createLineGraph(currentEvent, true); createLineGraph(currentEvent, false);">
       <img class="off" src="{!URLFOR($Resource.listMeAssets, 'stats.svg')}"/>
@@ -545,7 +545,7 @@ applyBodyTag="false"
       <div class="link">
         <img id="expand-list" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'expand.svg')}"/>
         <img id="show-add" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
-        <h1 class="list-header"> Waitlist </h1>
+        <h1 class="list-header"> Current Waitlist </h1>
       </div>
       <div class="link" ng-repeat="customer in customers">
         <div ng-show="$index == 0">
@@ -562,7 +562,7 @@ applyBodyTag="false"
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer)"/>
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer)"/>
           <p class="link-title"> {{customer.Name}} </p>
-          <p class="link-blurb"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
+          <p class="link-blurb" ng-show="$index < 5"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
         </div>
       </div>
     </section>
@@ -595,7 +595,7 @@ applyBodyTag="false"
     <div class="header-overall"></div>
     <img class="x" id="hide-list" src="{!URLFOR($Resource.listMeAssets, 'clear-x.svg')}"></img>
     <div class="link">
-      <h1 class="list-header"> Waitlist </h1>
+      <h1 class="list-header"> Current Waitlist </h1>
     </div>
     <div class="link" ng-repeat="customer in customers">
       <div ng-show="$index == 0">
@@ -608,7 +608,7 @@ applyBodyTag="false"
         <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
         <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
         <p class="link-title"> {{customer.Name}} </p>
-        <p class="link-blurb"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
+        <p class="link-blurb" ng-show="$index < 5"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
       </div>
     </div>
   </div>
