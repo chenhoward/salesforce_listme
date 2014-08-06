@@ -21,9 +21,12 @@ applyBodyTag="false"
   <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'stream/jquery.cometd.js')}"/>
   <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'slide.js')}"/>
   <apex:includeScript value="{!URLFOR($Resource.listMeAssets, 'd3/d3.min.js')}"/>
+<<<<<<< HEAD
+=======
   <apex:includeScript value="{!URLFOR($Resource.RollCallAssets, 'forceTK/forceTK.js')}"/>
 
 </head>
+>>>>>>> cea5c761cb4c31823d47c5788387cff4ffd206d4
   <script type="text/javascript">
   function setSection(to, from)
   {
@@ -208,6 +211,9 @@ applyBodyTag="false"
 
   #container section {
     box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -483,24 +489,26 @@ applyBodyTag="false"
 
   body { height: 100%; margin: 0; padding: 0 }
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
+  .axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
 
-.x.axis path {
-  display: none;
-}
+  .x-label, .y-label {
+    position: relative;
+    z-index: 1;
+    font-size: 16px;
+    display: block;
+  }
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-</style>
-
+  .line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+  }
+  </style>
+</head>
 <body ng-controller='EventController'>
 
     <div id="one-overall">
@@ -547,7 +555,7 @@ applyBodyTag="false"
       <div class="link">
         <img id="expand-list" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'expand.svg')}"/>
         <img id="show-add" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
-        <h1 class="list-header"> Current Waitlist </h1>
+        <h1 class="list-header"> Waitlist </h1>
       </div>
       <div class="link" ng-repeat="customer in customers">
         <div ng-show="$index == 0">
@@ -569,6 +577,9 @@ applyBodyTag="false"
       </div>
     </section>
     <section id="two">
+      <div class="link">
+        <h1 class="list-header"> Statistics </h1>
+      </div>
     </section>
     <section id="three">
     </section>
@@ -734,10 +745,11 @@ listMeApp.controller('EventController', function($scope) {
               console.log(data[i].totalTime - data[i+1].totalTime);
             }
           }
+          
           console.log(data);
-          var margin = {top: 20, right: 20, bottom: 30, left: 50},
-          width = 960 - margin.left - margin.right,
-          height = 500 - margin.top - margin.bottom;
+          var margin = {top: 80, right: 20, bottom: 20, left: 50},
+          width = 700 - margin.left - margin.right,
+          height = 315 - margin.top - margin.bottom;
 
           var parseDate = d3.time.format("%d-%b-%y").parse;
 
@@ -782,18 +794,39 @@ listMeApp.controller('EventController', function($scope) {
 
           svg.append("g")
           .attr("class", "x axis")
-          .attr("transform", "translate(0," + height + ")")
-          .call(xAxis);
+          .call(xAxis)
+          .attr("transform", "translate(0," + height + ")");
 
           svg.append("g")
           .attr("class", "y axis")
           .call(yAxis)
-          .append("text")
-          .attr("transform", "rotate(-90)")
+
+          svg.append("text")
+          .attr("class", "x-label")
+          .attr("text-anchor", "end")
+          .attr("fill", "#333333")
+          .attr("x", width)
+          .attr("y", height - 6)
+          .text("income per capita, inflation-adjusted (dollars)");
+
+          svg.append("text")
+          .attr("class", "y-label")
+          .attr("text-anchor", "end")
+          .attr("fill", "#333333")
           .attr("y", 6)
-          .attr("dy", ".71em")
-          .style("text-anchor", "end")
-          .text("Price ($)");
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("life expectancy (years)");
+
+          svg.append("text")
+          .attr("class", "header")
+          .attr("text-anchor", "middle")
+          .attr("fill", "#333333")
+          .attr("font-size", "24px")
+          .attr("x", width/2)
+          .attr("y", "-40px")
+          .attr("dy", ".75em")
+          .text("what graph is thisssss?");
 
           svg.append("path")
           .datum(data)
