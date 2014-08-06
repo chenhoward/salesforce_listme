@@ -719,6 +719,8 @@ listMeApp.controller('EventController', function($scope) {
 
   $scope.createLineGraph = function(event, all) {
     var remoteAct;
+    d3.select("#svg_true").remove();
+    d3.select("#svg_false").remove();
     if (all) {
       remoteAct = '{!$RemoteAction.ListMeController.getSignUpTimes}';
     } else {
@@ -736,13 +738,8 @@ listMeApp.controller('EventController', function($scope) {
               obj.totalTime = obj.CreatedDate + (obj.Wait_Time__c * 60);
             }
             data.sort(function(a, b) {return a.totalTime - b.totalTime});
-            for (var i = 0; i < data.length - 1; i++) {
-              console.log(data[i].totalTime - data[i+1].totalTime);
-            }
           }
-          
-          console.log(data);
-          var margin = {top: 80, right: 20, bottom: 20, left: 50},
+                    var margin = {top: 80, right: 20, bottom: 20, left: 50},
           width = 700 - margin.left - margin.right,
           height = 315 - margin.top - margin.bottom;
 
@@ -765,29 +762,29 @@ listMeApp.controller('EventController', function($scope) {
           .orient("left");
 
           var line;
+          var graphList;
+          var funcList;
           if (all) {
-            line = d3.svg.line()
-            .x(function(d) { return x(d); })
-            .y(function(d, i) { return y(i); });
+            graphList = ["Number of Sign Ins", "Sign Up Velocity"];
+            funcList = [function(d) { return x(d); }, function(d, i) { return y(i); }, function(d) { return d }, function(d, i) { return i }];
           } else {
-            line = d3.svg.line()
-            .x(function(d) { return x(d.totalTime); })
-            .y(function(d) { return y(d.Wait_Time__c); });
+            graphList = ["Wait Time (min)", "Wait Time"];
+            funcList = [function(d) { return x(d.totalTime); }, function(d) { return y(d.Wait_Time__c); }, function(d) { return d.totalTime}, function(d) { return d.Wait_Time__c }];
           }
+          
+          line = d3.svg.line()
+          .x(funcList[0])
+          .y(funcList[1]);
 
           var svg = d3.select("#two").append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
+          .attr("id", "svg_" + all)
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          if (all) {
-            x.domain(d3.extent(data, function(d) { return d }));
-            y.domain(d3.extent(data, function(d, i) { return i }));
-          } else {
-            x.domain(d3.extent(data, function(d) { return d.totalTime}));
-            y.domain(d3.extent(data, function(d) { return d.Wait_Time__c }));
-          }
+          x.domain(d3.extent(data, funcList[2]));
+          y.domain(d3.extent(data, funcList[3]));
 
           svg.append("g")
           .attr("class", "x axis")
@@ -806,7 +803,7 @@ listMeApp.controller('EventController', function($scope) {
           .attr("fill", "#333333")
           .attr("x", width)
           .attr("y", height - 6)
-          .text("income per capita, inflation-adjusted (dollars)");
+          .text("Time");
 
           svg.append("text")
           .attr("class", "y-label")
@@ -815,29 +812,17 @@ listMeApp.controller('EventController', function($scope) {
           .attr("y", 6)
           .attr("dy", ".75em")
           .attr("transform", "rotate(-90)")
-          .text("life expectancy (years)");
-          
-          if (all) {
-            svg.append("text")
-            .attr("class", "header")
-            .attr("text-anchor", "middle")
-            .attr("fill", "#333333")
-            .attr("font-size", "24px")
-            .attr("x", width/2)
-            .attr("y", "-40px")
-            .attr("dy", ".75em")
-            .text("Sign Up Velocity");
-          } else {
-            svg.append("text")
-            .attr("class", "header")
-            .attr("text-anchor", "middle")
-            .attr("fill", "#333333")
-            .attr("font-size", "24px")
-            .attr("x", width/2)
-            .attr("y", "-40px")
-            .attr("dy", ".75em")
-            .text("Wait Time");
-          }
+          .text(graphList[0]);
+
+          svg.append("text")
+          .attr("class", "header")
+          .attr("text-anchor", "middle")
+          .attr("fill", "#333333")
+          .attr("font-size", "24px")
+          .attr("x", width/2)
+          .attr("y", "-40px")
+          .attr("dy", ".75em")
+          .text(graphList[1]);
 
           svg.append("path")
           .datum(data)
