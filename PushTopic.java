@@ -1,0 +1,10 @@
+PushTopic pushTopic = new PushTopic();
+pushTopic.Name = 'CustomerUpdates';
+pushTopic.Query = 'SELECT Id, Name, Dropped__c, Active__c, Wait_Time__c FROM ListMe_Customer__c';
+pushTopic.ApiVersion = 31.0;
+pushTopic.NotifyForOperationCreate = true;
+pushTopic.NotifyForOperationUpdate = true;
+pushTopic.NotifyForOperationUndelete = true;
+pushTopic.NotifyForOperationDelete = true;
+pushTopic.NotifyForFields = 'Referenced';
+insert pushTopic;
