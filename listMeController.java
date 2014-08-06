@@ -21,13 +21,15 @@ global class ListMeController {
     /** Creates the CUSTOMERCONTACT for an event with Id EVENTID. */
     @RemoteAction
     global static ListMe_Customer__c createCustomer(Contact customerContact, Id eventId) {
+        ListMe_Customer__c customer;
         if (Schema.SObjectType.Contact.isCreateable()) {
             insert customerContact;
         }
         if (Schema.SObjectType.Contact.isAccessible()) {
             customerContact = [SELECT Name FROM Contact WHERE Id =: customerContact.Id];
+            customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId, Contact__c =: customerContact.Id);
         }
-        ListMe_Customer__c customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId);
+        customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId, Contact__c =: customerContact.Id);
         if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
             ListMe_Customer__c[] customerList = [SELECT Id FROM ListMe_Customer__c WHERE Event__c =: eventId];
             customer.Order__c = customerList.size();
