@@ -816,16 +816,28 @@ listMeApp.controller('EventController', function($scope) {
           .attr("dy", ".75em")
           .attr("transform", "rotate(-90)")
           .text("life expectancy (years)");
-
-          svg.append("text")
-          .attr("class", "header")
-          .attr("text-anchor", "middle")
-          .attr("fill", "#333333")
-          .attr("font-size", "24px")
-          .attr("x", width/2)
-          .attr("y", "-40px")
-          .attr("dy", ".75em")
-          .text("what graph is thisssss?");
+          
+          if (all) {
+            svg.append("text")
+            .attr("class", "header")
+            .attr("text-anchor", "middle")
+            .attr("fill", "#333333")
+            .attr("font-size", "24px")
+            .attr("x", width/2)
+            .attr("y", "-40px")
+            .attr("dy", ".75em")
+            .text("Sign Up Velocity");
+          } else {
+            svg.append("text")
+            .attr("class", "header")
+            .attr("text-anchor", "middle")
+            .attr("fill", "#333333")
+            .attr("font-size", "24px")
+            .attr("x", width/2)
+            .attr("y", "-40px")
+            .attr("dy", ".75em")
+            .text("Wait Time");
+          }
 
           svg.append("path")
           .datum(data)
