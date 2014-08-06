@@ -768,7 +768,7 @@ listMeApp.controller('EventController', function($scope) {
             graphList = ["Number of Sign Ins", "Sign Up Velocity"];
             funcList = [function(d) { return x(d); }, function(d, i) { return y(i); }, function(d) { return d }, function(d, i) { return i }];
           } else {
-            graphList = ["Wait Time (min)", "Wait Time"];
+            graphList = ["Wait Time (min)", "Average Wait Time"];
             funcList = [function(d) { return x(d.totalTime); }, function(d) { return y(d.Wait_Time__c); }, function(d) { return d.totalTime}, function(d) { return d.Wait_Time__c }];
           }
           
