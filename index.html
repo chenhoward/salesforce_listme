@@ -806,7 +806,19 @@ listMeApp.controller('EventController', function($scope) {
         alert('Error: ' + event.message);
       }
     });
-}
+  }
+
+  $.cometd.init({
+    url: window.location.protocol+'//'+window.location.hostname+'/cometd/24.0/',
+    requestHeaders: { Authorization: 'OAuth {!$Api.Session_ID}'}
+  });
+
+  // Subscribe to a topic. JSON-encoded update will be returned
+  // in the callback
+
+  $.cometd.subscribe('/topic/CustomerUpdates', function(message) {
+    getProjects();
+  });
 });
 
 
