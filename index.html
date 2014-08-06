@@ -756,10 +756,12 @@ listMeApp.controller('EventController', function($scope) {
 
           var xAxis = d3.svg.axis()
           .scale(x)
+          .ticks(10)
           .orient("bottom");
 
           var yAxis = d3.svg.axis()
           .scale(y)
+          .ticks(6)
           .orient("left");
 
           var line;
@@ -789,11 +791,13 @@ listMeApp.controller('EventController', function($scope) {
 
           svg.append("g")
           .attr("class", "x axis")
+          .attr("fill", "#333333")
           .call(xAxis)
           .attr("transform", "translate(0," + height + ")");
 
           svg.append("g")
           .attr("class", "y axis")
+          .attr("fill", "#333333")
           .call(yAxis)
 
           svg.append("text")
