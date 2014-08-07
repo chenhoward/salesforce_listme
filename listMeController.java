@@ -56,7 +56,10 @@ global class ListMeController {
     /** Gets the signuptimes for the event with Id EVENTID. */
     @RemoteAction
     global static DateTime[] getSignUpTimes(Id eventId) {
-        ListMe_Customer__c[] customers = [SELECT CreatedDate FROM ListMe_Customer__c WHERE Event__c =: eventId ORDER BY CreatedDate ASC];
+        ListMe_Customer__c[] customers;
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            customers = [SELECT CreatedDate FROM ListMe_Customer__c WHERE Event__c =: eventId ORDER BY CreatedDate ASC];
+        }
         DateTime[] times = new List<DateTime>();
         for (ListMe_Customer__c customer: customers) {
             times.add(customer.CreatedDate);
@@ -67,7 +70,18 @@ global class ListMeController {
     /** Gets the off times for the event with Id EVENTID. */
     @RemoteAction
     global static ListMe_Customer__c[] getOffTimes(Id eventId) {
-        ListMe_Customer__c[] customers = [SELECT CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c = false AND Dropped__c = false ORDER BY CreatedDate ASC];
+        ListMe_Customer__c[] customers;
+        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
+            customers = [SELECT CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c = false AND Dropped__c = false ORDER BY CreatedDate ASC];
+        }
         return customers;
+    }
+
+    /** Saves the setting on the event. */
+    @RemoteAction
+    global static void saveSetting(ListMe_Event__c event) {
+        if (Schema.SObjectType.ListMe_Event__c.isUpdateable()) {
+            update event;
+        }
     }
 }
