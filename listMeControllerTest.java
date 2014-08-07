@@ -41,4 +41,26 @@ public class listMeControllerTest {
         customers = listMeController.getActiveCustomers(eventId);
         System.assertEquals(0, customers.size());
     }
+
+    static testmethod void testGetSignUpTimes() {
+        Id eventId = setup();
+        DateTime[] dates = listMeController.getSignUpTimes(eventId);
+        System.assertEquals(2, dates.size());
+    }
+
+    static testmethod void testGeOffTimes() {
+        Id eventId = setup();
+        ListMe_Customer__c[] dates = listMeController.getOffTimes(eventId);
+        System.assertEquals(1, dates.size());
+    }
+
+    static testmethod void testSaveSettigns() {
+        Id eventId = setup();
+        ListMe_Event__c event = [SELECT Name FROM ListMe_Event__c WHERE Id =: eventId];
+        System.assertEquals(event.Name, 'First Event');
+        event.Name = 'S';
+        listMeController.saveSetting(event);
+        event = [SELECT Name FROM ListMe_Event__c WHERE Id =: eventId];
+        System.assertEquals(event.Name, 'S');
+    }
 }
