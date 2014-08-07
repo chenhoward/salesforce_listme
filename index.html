@@ -567,7 +567,7 @@ applyBodyTag="false"
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
           <p class="link-title"> {{customer.Name}} </p>
-          <p class="link-blurb" ng-show="$index < 5"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
+          <p class="link-blurb" ng-show="$index < 5 && showWaitTime"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
         </div>
       </div>
     </section>
@@ -578,6 +578,7 @@ applyBodyTag="false"
     </section>
     <section id="three">
       <input class="custom-file-input" style="padding:0px;" type="file" id="photoFile" accept="image/*"/>
+      <input type="checkbox" ng-value="showWaitTime"></input>
       <button ng-click="updateSettings()">Update</button>
     </section>
   </div>
@@ -618,7 +619,7 @@ applyBodyTag="false"
         <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
         <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
         <p class="link-title"> {{customer.Name}} </p>
-        <p class="link-blurb" ng-show="$index < 5"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
+        <p class="link-blurb" ng-show="$index < 5 && showWaitTime"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
       </div>
     </div>
   </div>
@@ -632,6 +633,8 @@ listMeApp.controller('EventController', function($scope) {
   $scope.currentEvent = {};
   /** List of customers. */
   $scope.customers = [];
+  /** Determines whether or not to show wait time. */
+  $scope.showWaitTime;
 
   /** Gets all the events. */
   var getEvents = function() {
@@ -654,6 +657,7 @@ listMeApp.controller('EventController', function($scope) {
   /** Gets all the Customers that are in the event with Id EVENTID. */
   $scope.getActiveCustomers = function(event) {
     $scope.currentEvent = event;
+    $scope.showWaitTime = event.Show_Wait_Time__c;
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.getActiveCustomers}',
       event.Id,

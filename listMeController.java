@@ -4,7 +4,7 @@ global class ListMeController {
     /** Returns all events. */
     @RemoteAction
     global static ListMe_Event__c[] getEvents() {
-        ListMe_Event__c[] events= [SELECT Name, Id, Waiting_Customers__c, Average_Wait_Time__c FROM ListMe_Event__c];
+        ListMe_Event__c[] events= [SELECT Name, Id, Waiting_Customers__c, Average_Wait_Time__c, Show_Wait_Time__c FROM ListMe_Event__c];
         return events;
     }
 
@@ -27,9 +27,8 @@ global class ListMeController {
         }
         if (Schema.SObjectType.Contact.isAccessible()) {
             customerContact = [SELECT Name FROM Contact WHERE Id =: customerContact.Id];
-            customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId, Contact__c =: customerContact.Id);
+            customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId, Contact__c = customerContact.Id);
         }
-        customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId, Contact__c =: customerContact.Id);
         if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
             ListMe_Customer__c[] customerList = [SELECT Id FROM ListMe_Customer__c WHERE Event__c =: eventId];
             customer.Order__c = customerList.size();
