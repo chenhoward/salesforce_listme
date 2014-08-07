@@ -158,7 +158,7 @@ applyBodyTag="false"
   .header-overall {
     height: 160px;
     width: 100%;
-    background-image: url(http://goo.gl/W6QMrW);
+    background-image: url({!$Resource.ListMe_Background_Img});
     background-size: cover;
   }
 
@@ -577,6 +577,8 @@ applyBodyTag="false"
       </div>
     </section>
     <section id="three">
+      <input class="custom-file-input" style="padding:0px;" type="file" id="photoFile" accept="image/*"/>
+      <button ng-click="updateSettings()">Update</button>
     </section>
   </div>
   <div id="add">
@@ -836,6 +838,53 @@ listMeApp.controller('EventController', function($scope) {
       }
     });
   }
+
+  /** The image data. */
+  var imageData;
+
+
+  /** The forceTK Client. */
+  var forcetkClient = new forcetk.Client();
+  forcetkClient.setSessionToken('{!$Api.Session_ID}');
+
+  /** Handles photo input on EVT. */
+  function handlePhoto(evt){
+    var file = evt.target.files[0];
+    var reader = new FileReader();
+
+    reader.onload = (function(theFile) {
+      return function(e) {
+        // Extract raw base64 data from data URL
+        $("#uploadPreview").attr('src',e.target.result);
+        imageData = e.target.result.split(',')[1];
+      };
+    })(file);
+
+    reader.readAsDataURL(file);
+  }
+
+  $scope.updateSettings = function() {
+    if ((typeof imageData != 'undefined') && imageData != ''){
+      console.log('click');
+      forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
+        var image = {'Body':imageData};
+        console.log(image);
+        console.log(response);
+        forcetkClient.update('StaticResource',
+         response.records[0].Id,
+         image,
+         function(){
+          imageData = '';
+        },
+        function (err) {
+        }
+        );
+      });
+    }
+  }
+
+   
+        $("#photoFile").change(handlePhoto);
 
   $.cometd.init({
     url: window.location.protocol+'//'+window.location.hostname+'/cometd/24.0/',
