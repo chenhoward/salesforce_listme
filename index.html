@@ -563,7 +563,7 @@ applyBodyTag="false"
     width: 58px;
     height: 30px;
     margin-top: 12px;
-    background-color: #2f92d0;
+    background-color: #ccc;
     border-radius: 15px;
     -webkit-transition: all 100ms ease-in;
     transition: all 100ms ease-in;
@@ -582,7 +582,7 @@ applyBodyTag="false"
 
   input.switch:checked ~ label:before
   {
-    background-color: #ccc;
+    background-color: #2f92d0;
   }
 
   input.switch:checked ~ label:after
@@ -591,7 +591,7 @@ applyBodyTag="false"
   }
 
   #view-state-me {
-    display: none;
+    display: inline;
     float: left;
     color: #999;
     font-size: 18px;
@@ -600,7 +600,7 @@ applyBodyTag="false"
   }
 
   #view-state-all {
-    display: inline;
+    display: none;
     float: left;
     color: #2f92d0;
     font-size: 18px;
@@ -609,19 +609,19 @@ applyBodyTag="false"
   }
 
   input.switch:empty ~ #view-state-me {
-    display: none;
+    display: inline;
   } 
 
   input.switch:checked ~ #view-state-me {
-    display: inline;
+    display: none;
   }
 
   input.switch:empty ~ #view-state-all {
-    display: inline;
+    display: none;
   }
 
   input.switch:checked ~ #view-state-all {
-    display: none;
+    display: inline;
   }
   </style>
 </head>
@@ -710,12 +710,11 @@ applyBodyTag="false"
         <br/><br/>
         <p> Show individual wait times? </p>
         <div>
-          <input type="checkbox" id="switch1" name="switch1" class="switch"/>
+          <input type="checkbox" id="switch1" name="switch1" class="switch" ng-value="currentEvent.Show_Wait_Time__c"/>
           <label for="switch1"> &nbsp; </label>
           <span id="view-state-me"> Disabled </span>
           <span id="view-state-all"> Enabled </span>
         </div>
-        <!--<input type="checkbox" ng-value="currentEvent.Show_Wait_Time__c"></input>-->
       </div>
       <button class="submit" ng-click="updateSettings()">Update</button>
     </section>
