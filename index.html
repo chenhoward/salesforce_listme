@@ -422,6 +422,37 @@ applyBodyTag="false"
     background-size: 60px 60px;
   }
 
+  .padding {
+    padding: 60px;
+  }
+
+  .add-photo {
+    width: 125px;
+    height: 35px;
+    opacity: 0;
+    position: relative;
+    left: -140px;
+    top: -7px;
+  }
+
+  #add-photo-button {
+    width: 125px;
+    height: 45px;
+    color: #fff;
+    font-family: ProximaNova, sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    background: #2f92d0;
+    border: 0;
+    border-radius: 6px;
+    margin-top: 7px;
+  }
+
+  .photo-preview {
+    width: 600px;
+    height: 100px;
+  }
+
   .submit {
     position: absolute;
     bottom: 0;
@@ -502,6 +533,96 @@ applyBodyTag="false"
     stroke: #2f92d0;
     stroke-width: 1.5px;
   }
+
+  input.switch:empty
+  {
+    margin-left: -9999px;
+  }
+
+  input.switch:empty ~ label
+  {
+    position: relative;
+    float: left;
+    text-indent: 69px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  input.switch:empty ~ label:before, 
+  input.switch:empty ~ label:after
+  {
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    content: ' ';
+    width: 58px;
+    height: 30px;
+    margin-top: 12px;
+    background-color: #2f92d0;
+    border-radius: 15px;
+    -webkit-transition: all 100ms ease-in;
+    transition: all 100ms ease-in;
+  }
+
+  input.switch:empty ~ label:after
+  {
+    width: 26px;
+    height: 26px;
+    top: 2px;
+    bottom: 2px;
+    margin-left: 2px;
+    background-color: #fff;
+    border-radius: 13px;
+  }
+
+  input.switch:checked ~ label:before
+  {
+    background-color: #ccc;
+  }
+
+  input.switch:checked ~ label:after
+  {
+    margin-left: 30px;
+  }
+
+  #view-state-me {
+    display: none;
+    float: left;
+    color: #999;
+    font-size: 18px;
+    margin-top: 16px;
+    margin-right: 7px;
+  }
+
+  #view-state-all {
+    display: inline;
+    float: left;
+    color: #2f92d0;
+    font-size: 18px;
+    margin-top: 16px;
+    margin-right: 7px;
+  }
+
+  input.switch:empty ~ #view-state-me {
+    display: none;
+  } 
+
+  input.switch:checked ~ #view-state-me {
+    display: inline;
+  }
+
+  input.switch:empty ~ #view-state-all {
+    display: inline;
+  }
+
+  input.switch:checked ~ #view-state-all {
+    display: none;
+  }
   </style>
 </head>
 <body ng-controller='EventController'>
@@ -577,9 +698,26 @@ applyBodyTag="false"
       </div>
     </section>
     <section id="three">
-      <input class="custom-file-input" style="padding:0px;" type="file" id="photoFile" accept="image/*"/>
-      <input type="checkbox" ng-value="currentEvent.Show_Wait_Time__c"></input>
-      <button ng-click="updateSettings()">Update</button>
+      <div class="link">
+        <h1 class="list-header"> Settings </h1>
+      </div>
+      <div class="padding">
+        <p> Add banner photo: </p>
+         <br/>
+        <img class="photo-preview" id="photoPreview" src="N/A"></img>
+        <button id="add-photo-button"> Add Photo </button>
+        <input type="file" class="photo add-photo custom-file-input" id="photoFile" value="Add Photo" accept="image/*"></input>
+        <br/><br/>
+        <p> Show individual wait times? </p>
+        <div>
+          <input type="checkbox" id="switch1" name="switch1" class="switch"/>
+          <label for="switch1"> &nbsp; </label>
+          <span id="view-state-me"> Disabled </span>
+          <span id="view-state-all"> Enabled </span>
+        </div>
+        <!--<input type="checkbox" ng-value="currentEvent.Show_Wait_Time__c"></input>-->
+      </div>
+      <button class="submit" ng-click="updateSettings()">Update</button>
     </section>
   </div>
   <div id="add">
