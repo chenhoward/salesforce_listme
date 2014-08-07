@@ -688,7 +688,7 @@ applyBodyTag="false"
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
           <img class="img-right" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
           <p class="link-title"> {{customer.Name}} </p>
-          <p class="link-blurb" ng-show="$index < 5 && currentEvent.Show_Wait_Time__c"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
+          <p class="link-blurb" ng-show="$index < 5 && currentEvent.Show_Wait_Time__c && currentEvent.Average_Wait_Time__c"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
         </div>
       </div>
     </section>
@@ -1048,6 +1048,20 @@ listMeApp.controller('EventController', function($scope) {
 
   $.cometd.subscribe('/topic/CustomerUpdates', function(message) {
     $scope.getActiveCustomers($scope.currentEvent);
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ListMeController.getUpdatedTime}',
+      $scope.currentEvent.Id,
+      function(result, event) {
+        if (event.status) {
+          $scope.currentEvent.Average_Wait_Time__c = result;
+          $scope.$apply();
+        } else if (event.type == 'exception') {
+          alert('Exception: ' + event.message);
+        } else {
+          alert('Error: ' + event.message);
+        }
+      }
+      );
   });
 });
 

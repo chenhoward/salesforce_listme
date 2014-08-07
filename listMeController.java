@@ -1,5 +1,5 @@
 /** Controller for ListMe App. */
-global class ListMeController {
+global with Sharing class ListMeController {
 
     /** Returns all events. */
     @RemoteAction
@@ -83,5 +83,14 @@ global class ListMeController {
         if (Schema.SObjectType.ListMe_Event__c.isUpdateable()) {
             update event;
         }
+    }
+
+    @RemoteAction
+    global static Decimal getUpdatedTime(Id eventId) {
+        ListMe_Event__c event;
+        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
+            event = [SELECT Average_Wait_Time__c FROM ListMe_Event__c WHERE Id =: eventId];
+        }
+        return event.Average_Wait_Time__c;
     }
 }
