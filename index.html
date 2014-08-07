@@ -710,10 +710,11 @@ applyBodyTag="false"
         <br/><br/>
         <p> Show individual wait times? </p>
         <div>
-          <input type="checkbox" id="switch1" name="switch1" class="switch" ng-value="currentEvent.Show_Wait_Time__c"/>
+          <input type="checkbox" id="switch1" name="switch1" class="switch" ng-model="currentEvent.Show_Wait_Time__c"/>
           <label for="switch1"> &nbsp; </label>
           <span id="view-state-me"> Disabled </span>
           <span id="view-state-all"> Enabled </span>
+
         </div>
       </div>
       <button class="submit" ng-click="updateSettings()">Update</button>
