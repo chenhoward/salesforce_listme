@@ -802,7 +802,7 @@ applyBodyTag="false"
       <div class="padding">
         <p> Add banner photo: </p>
         <br/>
-        <img class="photo-preview" id="photoPreview" src="N/A"></img>
+        <img class="photo-preview" id="photoPreview" src="{!$Resource.ListMe_Background_Img}"></img>
         <br/>
         <button id="add-photo-button"> Add Photo </button>
         <input type="file" class="photo add-photo custom-file-input" id="photoFile" value="Add Photo" accept="image/*"></input>
@@ -1114,29 +1114,32 @@ listMeApp.controller('EventController', function($scope) {
   }
 
   $scope.updateSettings = function() {
-    if ((typeof imageData != 'undefined') && imageData != ''){
-      console.log('click');
-      forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
-        var image = {'Body':imageData};
-        console.log(image);
-        console.log(response);
-        forcetkClient.update('StaticResource',
-         response.records[0].Id,
-         image,
-         function(){
-          imageData = '';
-        },
-        function (err) {
-        }
-        );
-      });
-    }
+    
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.saveSetting}',
-      $scope.currentEvent,
+      angular.copy($scope.currentEvent),
       function(result, event) {
         if (event.status) {
-
+          if ((typeof imageData != 'undefined') && imageData != ''){
+            console.log('click');
+            forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
+              var image = {'Body':imageData};
+              console.log(image);
+              console.log(response);
+              forcetkClient.update('StaticResource',
+                response.records[0].Id,
+                image,
+                function(){
+                 imageData = '';
+                 location.reload(true);
+                },
+                function (err) {
+                  alert('err');
+                  console.log(err);
+                }
+              );
+            });
+          }
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
         } else {

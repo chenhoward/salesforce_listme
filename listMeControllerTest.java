@@ -72,13 +72,14 @@ public class listMeControllerTest {
         System.assertEquals(true, t >= 0);
     }
 
-    static testmehod void testSendEmail() {
+    static testmethod void testSendEmail() {
         Id eventId = setup();
         ListMe_Customer__c customer = new ListMe_Customer__c(Name = 'David', Event__c = eventId, Active__c = true);
         ListMe_Customer__c customer2 = new ListMe_Customer__c(Name = 'David2', Event__c = eventId, Active__c = true);
         insert customer;
         insert customer2;
         ListMe_Customer__c[] customers = listMeController.getActiveCustomers(eventId);
+        System.assertEquals(3, customers.size());
         listMeController.removeCustomer(customers[0].Id, false);
     }
 }
