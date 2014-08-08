@@ -1113,29 +1113,32 @@ listMeApp.controller('EventController', function($scope) {
   }
 
   $scope.updateSettings = function() {
-    if ((typeof imageData != 'undefined') && imageData != ''){
-      console.log('click');
-      forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
-        var image = {'Body':imageData};
-        console.log(image);
-        console.log(response);
-        forcetkClient.update('StaticResource',
-         response.records[0].Id,
-         image,
-         function(){
-          imageData = '';
-        },
-        function (err) {
-        }
-        );
-      });
-    }
+    
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.saveSetting}',
       angular.copy($scope.currentEvent),
       function(result, event) {
         if (event.status) {
-
+          if ((typeof imageData != 'undefined') && imageData != ''){
+            console.log('click');
+            forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
+              var image = {'Body':imageData};
+              console.log(image);
+              console.log(response);
+              forcetkClient.update('StaticResource',
+                response.records[0].Id,
+                image,
+                function(){
+                 imageData = '';
+                 location.reload(true);
+                },
+                function (err) {
+                  alert('err');
+                  console.log(err);
+                }
+              );
+            });
+          }
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
         } else {
