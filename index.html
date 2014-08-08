@@ -1132,7 +1132,7 @@ listMeApp.controller('EventController', function($scope) {
     }
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.saveSetting}',
-      $scope.currentEvent,
+      angular.copy($scope.currentEvent),
       function(result, event) {
         if (event.status) {
 
