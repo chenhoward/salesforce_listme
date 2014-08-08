@@ -623,6 +623,103 @@ applyBodyTag="false"
   input.switch:checked ~ #view-state-all {
     display: inline;
   }
+
+  input.switch2:empty
+  {
+    margin-left: -9999px;
+  }
+
+  input.switch2:empty ~ label
+  {
+    position: relative;
+    float: left;
+    text-indent: 69px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  input.switch2:empty ~ label:before, 
+  input.switch2:empty ~ label:after
+  {
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    content: ' ';
+    width: 58px;
+    height: 30px;
+    margin-top: 12px;
+    background-color: #ccc;
+    border-radius: 15px;
+    -webkit-transition: all 100ms ease-in;
+    transition: all 100ms ease-in;
+  }
+
+  input.switch2:empty ~ label:after
+  {
+    width: 26px;
+    height: 26px;
+    top: 2px;
+    bottom: 2px;
+    margin-left: 2px;
+    background-color: #fff;
+    border-radius: 13px;
+  }
+
+  input.switch2:checked ~ label:before
+  {
+    background-color: #2f92d0;
+  }
+
+  input.switch2:checked ~ label:after
+  {
+    margin-left: 30px;
+  }
+
+  #view-state-me2 {
+    display: inline;
+    float: left;
+    color: #999;
+    font-size: 18px;
+    margin-top: 16px;
+    margin-right: 7px;
+  }
+
+  #view-state-all2 {
+    display: none;
+    float: left;
+    color: #2f92d0;
+    font-size: 18px;
+    margin-top: 16px;
+    margin-right: 7px;
+  }
+
+  input.switch2:empty ~ #view-state-me2 {
+    display: inline;
+  } 
+
+  input.switch2:checked ~ #view-state-me2 {
+    display: none;
+  }
+
+  input.switch2:empty ~ #view-state-all2 {
+    display: none;
+  }
+
+  input.switch2:checked ~ #view-state-all2 {
+    display: inline;
+  }
+
+  @media (max-height: 700px) {
+    .submit {
+      position: static;
+      float: left;
+    }
+  }
   </style>
 </head>
 <body ng-controller='EventController'>
@@ -703,10 +800,14 @@ applyBodyTag="false"
       </div>
       <div class="padding">
         <p> Add banner photo: </p>
-         <br/>
+        <br/>
         <img class="photo-preview" id="photoPreview" src="N/A"></img>
+        <br/>
         <button id="add-photo-button"> Add Photo </button>
         <input type="file" class="photo add-photo custom-file-input" id="photoFile" value="Add Photo" accept="image/*"></input>
+        <br/><br/>
+        <p style="padding-bottom: 10px;"> Remind customers at what position in the waitlist? </p>
+        <input class="short" type="Number" ng-model="currentEvent.Email_Position__c"/>
         <br/><br/>
         <p> Show individual wait times? </p>
         <div>
@@ -714,21 +815,14 @@ applyBodyTag="false"
           <label for="switch1"> &nbsp; </label>
           <span id="view-state-me"> Disabled </span>
           <span id="view-state-all"> Enabled </span>
-
         </div>
         <br/><br/>
         <p> Send Email </p>
         <div>
-          <input type="checkbox" id="switch1" name="switch1" class="switch" ng-model="currentEvent.Send_Email__c"/>
-          <label for="switch1"> &nbsp; </label>
-          <span id="view-state-me"> Disabled </span>
-          <span id="view-state-all"> Enabled </span>
-
-        </div>
-         <p> At which position? {{currentEvent.Email_Position__c}} </p>
-        <div>
-          <input type="Number" ng-model="currentEvent.Email_Position__c"/>
-
+          <input type="checkbox" id="switch2" name="switch2" class="switch2" ng-model="currentEvent.Send_Email__c"/>
+          <label for="switch2"> &nbsp; </label>
+          <span id="view-state-me2"> Disabled </span>
+          <span id="view-state-all2"> Enabled </span>
         </div>
       </div>
       <button class="submit" ng-click="updateSettings()">Update</button>
