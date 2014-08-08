@@ -944,6 +944,7 @@ listMeApp.controller('EventController', function($scope) {
           customer[key] = dateValue;
         }
       }
+      customer[key] = escapeHtml(customer[key]);
     }
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.createCustomer}',
@@ -1202,6 +1203,11 @@ listMeApp.controller('EventController', function($scope) {
   });
 });
 
+var escapeHtml = function(string) {
+  return String(string).replace(/[&<>"\/]/g, function (s) {
+    return entityMap[s];
+  });
+}
 
 
 </script>
