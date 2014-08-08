@@ -1094,7 +1094,7 @@ listMeApp.controller('EventController', function($scope) {
   }
 
   /** The image data. */
-  var imageData;
+  $scope.imageData;
 
 
   /** The forceTK Client. */
@@ -1110,7 +1110,8 @@ listMeApp.controller('EventController', function($scope) {
       return function(e) {
         // Extract raw base64 data from data URL
         $("#uploadPreview").attr('src',e.target.result);
-        imageData = e.target.result.split(',')[1];
+        $scope.imageData = e.target.result.split(',')[1];
+        $("#photoPreview").attr("src", "data:image/png;base64," + $scope.imageData);
       };
     })(file);
 
@@ -1118,31 +1119,41 @@ listMeApp.controller('EventController', function($scope) {
   }
 
   $scope.updateSettings = function() {
-    
-    Visualforce.remoting.Manager.invokeAction(
-      '{!$RemoteAction.ListMeController.saveSetting}',
-      angular.copy($scope.currentEvent),
-      function(result, event) {
-        if (event.status) {
-          if ((typeof imageData != 'undefined') && imageData != ''){
+      var finished = false;
+     if ((typeof $scope.imageData != 'undefined') && $scope.imageData != ''){
             console.log('click');
             forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
-              var image = {'Body':imageData};
+              var image = {'Body':$scope.imageData};
               console.log(image);
               console.log(response);
               forcetkClient.update('StaticResource',
                 response.records[0].Id,
                 image,
                 function(){
-                 imageData = '';
-                 location.reload(true);
+                 $scope.imageData = '';
+                 if (finished) {
+                    location.reload(true);
+                  } else {
+                    finished = true;
+                  }
                 },
                 function (err) {
-                  alert('err');
-                  console.log(err);
+                  alert('Image Upload Error');
                 }
               );
             });
+          } else {
+            finished = true;
+          }
+    Visualforce.remoting.Manager.invokeAction(
+      '{!$RemoteAction.ListMeController.saveSetting}',
+      angular.copy($scope.currentEvent),
+      function(result, event) {
+        if (event.status) {
+          if (finished) {
+           location.reload(true);
+          } else {
+           finished = true;
           }
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
