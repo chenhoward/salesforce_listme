@@ -42,15 +42,44 @@ global with Sharing class ListMeController {
     /** Removes the customer with Id CUSTOMERID and determines if the DROPped. */
     @RemoteAction
     global static ListMe_Customer__c removeCustomer(Id customerId, Boolean drop) {
+        ListMe_Event__c event;
         ListMe_Customer__c customer;
+        ListMe_Customer__c[] customers;
         if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
-            customer = [SELECT Name, CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Id =: customerId];
+            customer = [SELECT Name, CreatedDate, Wait_Time__c, Event__c, Contact__r.Email FROM ListMe_Customer__c WHERE Id =: customerId];
             customer.Wait_Time__c = (System.now().getTime() - customer.CreatedDate.getTime())/ 60000;
             customer.Active__c = false;
             customer.Dropped__c = drop;
             update customer;
         }
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            event = [SELECT Id, Email_Position__c, Send_Email__c FROM ListMe_Event__c WHERE Id =: customer.Event__c];
+        }
+        customers = getActiveCustomers(event.Id);
+        sendEmail(event, customers);
         return customer;
+    }
+
+    /** Determines whether or not to send an email. */ 
+    private static void sendEmail(ListMe_Event__c event, ListMe_Customer__c[] customers) {
+        Boolean send = false;
+        Contact cont;
+        if (event.Send_Email__c && customers.size() >= event.Email_Position__c && Schema.SObjectType.Contact.isAccessible()) {
+            cont = [SELECT Email FROM Contact WHERE Id =: customers[(event.Email_Position__c - 1).intValue()].Contact__c];
+            send = cont.Email != null;
+        }
+        if (send) {
+            Messaging.reserveSingleEmailCapacity(1);
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            String[] toAddresses = new String[] {cont.Email};
+            mail.setToAddresses(toAddresses);
+            mail.setSenderDisplayName('Support');
+            mail.setSubject('Reminder : Waitlist Position');
+            mail.setBccSender(false);
+            mail.setUseSignature(false);
+            mail.setPlainTextBody('You are now position ' + event.Email_Position__c + ' on the waitlist.');
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
     /** Gets the signuptimes for the event with Id EVENTID. */
@@ -85,6 +114,7 @@ global with Sharing class ListMeController {
         }
     }
 
+    /** Returns the average wait time for event with Id EVENTID. */
     @RemoteAction
     global static Decimal getUpdatedTime(Id eventId) {
         ListMe_Event__c event;
