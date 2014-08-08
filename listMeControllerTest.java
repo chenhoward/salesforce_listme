@@ -4,6 +4,8 @@ public class listMeControllerTest {
     static Id setup() {
         ListMe_Event__c event = new ListMe_Event__c(Name = 'First Event');
         event.Show_Wait_Time__c = true;
+        event.Send_Email__c = true;
+        event.Email_Position__c = 1;
         insert event;
         ListMe_Customer__c customer = new ListMe_Customer__c(Name = 'David', Event__c = event.Id, Active__c = true);
         ListMe_Customer__c customer2 = new ListMe_Customer__c(Name = 'David2', Event__c = event.Id, Active__c = false);
@@ -62,5 +64,21 @@ public class listMeControllerTest {
         listMeController.saveSetting(event);
         event = [SELECT Name FROM ListMe_Event__c WHERE Id =: eventId];
         System.assertEquals(event.Name, 'S');
+    }
+
+    static testmethod void testGetUpdatedTime() {
+        Id eventId = setup();
+        Decimal t = listMeController.getUpdatedTime(eventId);
+        System.assertEquals(true, t >= 0);
+    }
+
+    static testmehod void testSendEmail() {
+        Id eventId = setup();
+        ListMe_Customer__c customer = new ListMe_Customer__c(Name = 'David', Event__c = eventId, Active__c = true);
+        ListMe_Customer__c customer2 = new ListMe_Customer__c(Name = 'David2', Event__c = eventId, Active__c = true);
+        insert customer;
+        insert customer2;
+        ListMe_Customer__c[] customers = listMeController.getActiveCustomers(eventId);
+        listMeController.removeCustomer(customers[0].Id, false);
     }
 }
