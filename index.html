@@ -716,6 +716,20 @@ applyBodyTag="false"
           <span id="view-state-all"> Enabled </span>
 
         </div>
+        <br/><br/>
+        <p> Send Email </p>
+        <div>
+          <input type="checkbox" id="switch1" name="switch1" class="switch" ng-model="currentEvent.Send_Email__c"/>
+          <label for="switch1"> &nbsp; </label>
+          <span id="view-state-me"> Disabled </span>
+          <span id="view-state-all"> Enabled </span>
+
+        </div>
+         <p> At which position? {{currentEvent.Email_Position__c}} </p>
+        <div>
+          <input type="Number" ng-model="currentEvent.Email_Position__c"/>
+
+        </div>
       </div>
       <button class="submit" ng-click="updateSettings()">Update</button>
     </section>
@@ -793,6 +807,7 @@ listMeApp.controller('EventController', function($scope) {
   /** Gets all the Customers that are in the event with Id EVENTID. */
   $scope.getActiveCustomers = function(event) {
     $scope.currentEvent = event;
+    console.log($scope.currentEvent);
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.getActiveCustomers}',
       event.Id,
