@@ -872,6 +872,11 @@ applyBodyTag="false"
   </div>
 </body>
 <script>
+window.onkeydown = function(e){
+  var $focused = $(':focus');
+  window.focus();
+  $focused.focus();
+}
 var listMeApp = angular.module('listMe', []);
 listMeApp.controller('EventController', function($scope) {
   /** List of events. */
