@@ -715,6 +715,10 @@ applyBodyTag="false"
     display: inline;
   }
 
+  input[type="date"] {
+    height: 22px;
+  }
+
   #submit-loader {
     position: relative;
     top: 2px;
@@ -727,6 +731,16 @@ applyBodyTag="false"
       position: static;
       float: left;
     }
+  }
+
+  @media (max-width: 400px) {
+    #navbar {
+      display: none;
+    }
+
+    #container {
+      left: 0;
+    } 
   }
   </style>
 </head>
