@@ -424,6 +424,7 @@ applyBodyTag="false"
 
   .padding {
     padding: 60px;
+    padding-top: 40px;
   }
 
   .add-photo {
@@ -990,9 +991,9 @@ listMeApp.controller('EventController', function($scope) {
             }
             data.sort(function(a, b) {return a.totalTime - b.totalTime});
           }
-                    var margin = {top: 80, right: 20, bottom: 20, left: 50},
+                    var margin = {top: 80, right: 50, bottom: 50, left: 100},
           width = 700 - margin.left - margin.right,
-          height = 315 - margin.top - margin.bottom;
+          height = 300 - margin.top - margin.bottom;
 
           var parseDate = d3.time.format("%d-%b-%y").parse;
 
@@ -1004,7 +1005,7 @@ listMeApp.controller('EventController', function($scope) {
 
           var xAxis = d3.svg.axis()
           .scale(x)
-          .ticks(10)
+          .ticks(6)
           .orient("bottom");
 
           var yAxis = d3.svg.axis()
