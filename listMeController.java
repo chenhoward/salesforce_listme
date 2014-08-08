@@ -4,7 +4,10 @@ global with Sharing class ListMeController {
     /** Returns all events. */
     @RemoteAction
     global static ListMe_Event__c[] getEvents() {
-        ListMe_Event__c[] events= [SELECT Name, Id, Waiting_Customers__c, Average_Wait_Time__c, Show_Wait_Time__c, Email_Position__c, Send_Email__c FROM ListMe_Event__c];
+        ListMe_Event__c[] events;
+        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
+            events= [SELECT Name, Id, Waiting_Customers__c, Average_Wait_Time__c, Show_Wait_Time__c, Email_Position__c, Send_Email__c FROM ListMe_Event__c];
+        }
         return events;
     }
 
@@ -45,14 +48,14 @@ global with Sharing class ListMeController {
         ListMe_Event__c event;
         ListMe_Customer__c customer;
         ListMe_Customer__c[] customers;
-        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible() && Schema.SObjectType.ListMe_Customer__c.isUpdateable()) {
             customer = [SELECT Name, CreatedDate, Wait_Time__c, Event__c, Contact__r.Email FROM ListMe_Customer__c WHERE Id =: customerId];
             customer.Wait_Time__c = (System.now().getTime() - customer.CreatedDate.getTime())/ 60000;
             customer.Active__c = false;
             customer.Dropped__c = drop;
             update customer;
         }
-        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
             event = [SELECT Id, Email_Position__c, Send_Email__c FROM ListMe_Event__c WHERE Id =: customer.Event__c];
         }
         customers = getActiveCustomers(event.Id);
@@ -100,7 +103,7 @@ global with Sharing class ListMeController {
     @RemoteAction
     global static ListMe_Customer__c[] getOffTimes(Id eventId) {
         ListMe_Customer__c[] customers;
-        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
             customers = [SELECT CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c = false AND Dropped__c = false ORDER BY CreatedDate ASC];
         }
         return customers;
