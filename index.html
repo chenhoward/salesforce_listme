@@ -716,8 +716,10 @@ applyBodyTag="false"
   }
 
   #submit-loader {
-    width: 30px;
-    height: 30px;
+    position: relative;
+    top: 2px;
+    width: 23px;
+    height: 23px;
   }
 
   @media (max-height: 700px) {
@@ -832,8 +834,8 @@ applyBodyTag="false"
         </div>
       </div>
       <button class="submit" ng-click="updateSettings()">
-        <span id="submit-text" ng-show="false"> Update </span>
-        <img id="submit-loader" src="{!URLFOR($Resource.listMeAssets, 'loader.gif')}" ng-show="true"></img>
+        <span id="submit-text" ng-show="!showSpinner"> Update </span>
+        <img id="submit-loader" src="{!URLFOR($Resource.listMeAssets, 'loader.gif')}" ng-show="showSpinner"></img>
       </button>
     </section>
   </div>
@@ -894,6 +896,8 @@ listMeApp.controller('EventController', function($scope) {
   $scope.currentEvent = {};
   /** List of customers. */
   $scope.customers = [];
+  /** Show spinner */
+  $scope.showSpinner = false;
 
   /** Gets all the events. */
   var getEvents = function() {
@@ -1129,8 +1133,9 @@ listMeApp.controller('EventController', function($scope) {
   }
 
   $scope.updateSettings = function() {
+      $scope.showSpinner = true;
       var finished = false;
-     if ((typeof $scope.imageData != 'undefined') && $scope.imageData != ''){
+      if ((typeof $scope.imageData != 'undefined') && $scope.imageData != ''){
             console.log('click');
             forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
               var image = {'Body':$scope.imageData};
