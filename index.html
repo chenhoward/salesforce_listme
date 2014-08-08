@@ -715,6 +715,11 @@ applyBodyTag="false"
     display: inline;
   }
 
+  #submit-loader {
+    width: 30px;
+    height: 30px;
+  }
+
   @media (max-height: 700px) {
     .submit {
       position: static;
@@ -826,7 +831,10 @@ applyBodyTag="false"
           <span id="view-state-all2"> Enabled </span>
         </div>
       </div>
-      <button class="submit" ng-click="updateSettings()">Update</button>
+      <button class="submit" ng-click="updateSettings()">
+        <span id="submit-text" ng-show="false"> Update </span>
+        <img id="submit-loader" src="{!URLFOR($Resource.listMeAssets, 'loader.gif')}" ng-show="true"></img>
+      </button>
     </section>
   </div>
   <div id="add">
