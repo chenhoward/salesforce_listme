@@ -1,91 +1,129 @@
-@isTest
-public class listMeControllerTest {
+/** Controller for ListMe App. */
+global with Sharing class ListMeController {
 
-    static Id setup() {
-        ListMe_Event__c event = new ListMe_Event__c(Name = 'First Event');
-        event.Show_Wait_Time__c = true;
-        event.Send_Email__c = true;
-        event.Email_Position__c = 1;
-        insert event;
-        Contact cont = new Contact(FirstName='Dave', LastName='To', Email='a@b.com');
-        insert cont;
-        ListMe_Customer__c customer = new ListMe_Customer__c(Name = 'David', Event__c = event.Id, Active__c = true, Contact__c = cont.Id);
-        ListMe_Customer__c customer2 = new ListMe_Customer__c(Name = 'David2', Event__c = event.Id, Active__c = false, Contact__c = cont.Id);
-        insert customer;
-        insert customer2;
-        return event.Id;
+    /** Returns all events. */
+    @RemoteAction
+    global static ListMe_Event__c[] getEvents() {
+        ListMe_Event__c[] events;
+        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
+            events= [SELECT Name, Id, Waiting_Customers__c, Average_Wait_Time__c, Show_Wait_Time__c, Email_Position__c, Send_Email__c FROM ListMe_Event__c];
+        }
+        return events;
     }
 
-    static testmethod void testGetEvents() {
-        setup();
-        ListMe_Event__c[] events = listMeController.getEvents();
-        System.assertEquals(1, events.size());
-        System.assertEquals('First Event', events[0].Name);
+    /** Get customers that are in an event with Id EVENTID. */
+    @RemoteAction
+    global static ListMe_Customer__c[] getActiveCustomers(Id eventId) {
+        ListMe_Customer__c[] customers;
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            customers = [SELECT Name, Active__c, Id, Contact__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c =: True ORDER BY Order__c ASC];
+        }
+        return customers;
     }
 
-    static testmethod void testGetCustomers() {
-        Id eventId = setup();
-        ListMe_Customer__c[] customers = listMeController.getActiveCustomers(eventId);
-        System.assertEquals(1, customers.size());
+    /** Creates the CUSTOMERCONTACT for an event with Id EVENTID. */
+    @RemoteAction
+    global static ListMe_Customer__c createCustomer(Contact customerContact, Id eventId) {
+        ListMe_Customer__c customer;
+        if (Schema.SObjectType.Contact.isCreateable()) {
+            insert customerContact;
+        }
+        if (Schema.SObjectType.Contact.isAccessible()) {
+            customerContact = [SELECT Name FROM Contact WHERE Id =: customerContact.Id];
+            customer = new ListMe_Customer__c(Name = customerContact.Name, Event__c = eventId, Contact__c = customerContact.Id);
+        }
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            ListMe_Customer__c[] customerList = [SELECT Id FROM ListMe_Customer__c WHERE Event__c =: eventId];
+            customer.Order__c = customerList.size();
+        }
+        if (Schema.SObjectType.ListMe_Customer__c.isCreateable()) {
+            insert customer;
+        }
+        return customer;
     }
 
-    static testmethod void testCreateCustomer() {
-        Id eventId = setup();
-        Contact cont = new Contact(FirstName='Henry', LastName='Lee');
-        listMeController.createCustomer(cont, eventId);
-        ListMe_Customer__c[] customers = listMeController.getActiveCustomers(eventId);
-        System.assertEquals(2, customers.size());
+    /** Removes the customer with Id CUSTOMERID and determines if the DROPped. */
+    @RemoteAction
+    global static ListMe_Customer__c removeCustomer(Id customerId, Boolean drop) {
+        ListMe_Event__c event;
+        ListMe_Customer__c customer;
+        ListMe_Customer__c[] customers;
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible() && Schema.SObjectType.ListMe_Customer__c.isUpdateable()) {
+            customer = [SELECT Name, CreatedDate, Wait_Time__c, Event__c, Contact__r.Email FROM ListMe_Customer__c WHERE Id =: customerId];
+            customer.Wait_Time__c = (System.now().getTime() - customer.CreatedDate.getTime())/ 60000;
+            customer.Active__c = false;
+            customer.Dropped__c = drop;
+            update customer;
+        }
+        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
+            event = [SELECT Id, Email_Position__c, Send_Email__c FROM ListMe_Event__c WHERE Id =: customer.Event__c];
+        }
+        customers = getActiveCustomers(event.Id);
+        sendEmail(event, customers);
+        return customer;
     }
 
-    static testmethod void testRemoveCustomer() {
-        Id eventId = setup();
-        ListMe_Customer__c[] customers = listMeController.getActiveCustomers(eventId);
-        System.assertEquals(1, customers.size());
-        listMeController.removeCustomer(customers[0].Id, false);
-        customers = listMeController.getActiveCustomers(eventId);
-        System.assertEquals(0, customers.size());
+    /** Determines whether or not to send an email. */ 
+    private static void sendEmail(ListMe_Event__c event, ListMe_Customer__c[] customers) {
+        Boolean send = false;
+        Contact cont;
+        if (event.Send_Email__c && customers.size() >= event.Email_Position__c && Schema.SObjectType.Contact.isAccessible()) {
+            cont = [SELECT Email FROM Contact WHERE Id =: customers[(event.Email_Position__c - 1).intValue()].Contact__c];
+            send = cont.Email != null;
+        }
+        if (send) {
+            Messaging.reserveSingleEmailCapacity(1);
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            String[] toAddresses = new String[] {cont.Email};
+            mail.setToAddresses(toAddresses);
+            mail.setSenderDisplayName('Support');
+            mail.setSubject('Reminder : Waitlist Position');
+            mail.setBccSender(false);
+            mail.setUseSignature(false);
+            mail.setPlainTextBody('You are now position ' + event.Email_Position__c + ' on the waitlist.');
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
-    static testmethod void testGetSignUpTimes() {
-        Id eventId = setup();
-        DateTime[] dates = listMeController.getSignUpTimes(eventId);
-        System.assertEquals(2, dates.size());
+    /** Gets the signuptimes for the event with Id EVENTID. */
+    @RemoteAction
+    global static DateTime[] getSignUpTimes(Id eventId) {
+        ListMe_Customer__c[] customers;
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            customers = [SELECT CreatedDate FROM ListMe_Customer__c WHERE Event__c =: eventId ORDER BY CreatedDate ASC];
+        }
+        DateTime[] times = new List<DateTime>();
+        for (ListMe_Customer__c customer: customers) {
+            times.add(customer.CreatedDate);
+        }
+        return times;
     }
 
-    static testmethod void testGeOffTimes() {
-        Id eventId = setup();
-        ListMe_Customer__c[] dates = listMeController.getOffTimes(eventId);
-        System.assertEquals(1, dates.size());
+    /** Gets the off times for the event with Id EVENTID. */
+    @RemoteAction
+    global static ListMe_Customer__c[] getOffTimes(Id eventId) {
+        ListMe_Customer__c[] customers;
+        if (Schema.SObjectType.ListMe_Customer__c.isAccessible()) {
+            customers = [SELECT CreatedDate, Wait_Time__c FROM ListMe_Customer__c WHERE Event__c =: eventId AND Active__c = false AND Dropped__c = false ORDER BY CreatedDate ASC];
+        }
+        return customers;
     }
 
-    static testmethod void testSaveSettigns() {
-        Id eventId = setup();
-        ListMe_Event__c event = [SELECT Name FROM ListMe_Event__c WHERE Id =: eventId];
-        System.assertEquals(event.Name, 'First Event');
-        event.Name = 'S';
-        listMeController.saveSetting(event);
-        event = [SELECT Name FROM ListMe_Event__c WHERE Id =: eventId];
-        System.assertEquals(event.Name, 'S');
+    /** Saves the setting on the event. */
+    @RemoteAction
+    global static void saveSetting(ListMe_Event__c event) {
+        if (Schema.SObjectType.ListMe_Event__c.isUpdateable()) {
+            update event;
+        }
     }
 
-    static testmethod void testGetUpdatedTime() {
-        Id eventId = setup();
-        Decimal t = listMeController.getUpdatedTime(eventId);
-        System.assertEquals(true, t >= 0);
-    }
-
-    static testmethod void testSendEmail() {
-        Id eventId = setup();
-        Contact cont = new Contact(FirstName='Dave', LastName='To', Email='c@b.com');
-        insert cont;
-        ListMe_Customer__c customer = new ListMe_Customer__c(Name = 'David', Event__c = eventId, Active__c = true, Contact__c = cont.Id);
-        ListMe_Customer__c customer2 = new ListMe_Customer__c(Name = 'David2', Event__c = eventId, Active__c = true, Contact__c = cont.Id);
-        insert customer;
-        insert customer2;
-        ListMe_Customer__c[] customers = listMeController.getActiveCustomers(eventId);
-        System.assertEquals(3, customers.size());
-        listMeController.removeCustomer(customers[0].Id, false);
-        customers = listMeController.getActiveCustomers(eventId);
-        System.assertEquals(2, customers.size());
+    /** Returns the average wait time for event with Id EVENTID. */
+    @RemoteAction
+    global static Decimal getUpdatedTime(Id eventId) {
+        ListMe_Event__c event;
+        if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
+            event = [SELECT Average_Wait_Time__c FROM ListMe_Event__c WHERE Id =: eventId];
+        }
+        return event.Average_Wait_Time__c;
     }
 }
