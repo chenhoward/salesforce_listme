@@ -734,7 +734,36 @@ applyBodyTag="false"
   }
 
   @media (max-width: 400px) {
+    .submit {
+      position: absolute;
+      bottom: 0;
+    }
+
+    .question {
+      margin-top: -10px;
+    }
+
+    .short {
+      width: 60%;
+    }
+
     #navbar {
+      width: 0;
+    }
+
+    .list-header {
+      margin-left: 25px;
+    }
+
+    #expand-list {
+      display: none;
+    }
+
+    #hide-add {
+      background: #999;
+    }
+
+    #navbar_title, .tab {
       display: none;
     }
 
@@ -753,13 +782,13 @@ applyBodyTag="false"
     </div>
     <a class="link" data-section="one" href="#" ng-repeat="event in events">
       <div ng-click="getActiveCustomers(event)">
-      <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
-      <p class="link-title"> {{event.Name}} </p>
-      <p class="link-blurb" ng-show="event.Waiting_Customers__c > 1"> {{event.Waiting_Customers__c}} people waiting</p>
-      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 1"> 1 person waiting</p>
-      <p class="link-blurb" ng-show="event.Waiting_Customers__c == 0"> Nobody waiting </p>
-      <div class="arrow-right"></div>
-     </div>
+        <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
+        <p class="link-title"> {{event.Name}} </p>
+        <p class="link-blurb" ng-show="event.Waiting_Customers__c > 1"> {{event.Waiting_Customers__c}} people waiting</p>
+        <p class="link-blurb" ng-show="event.Waiting_Customers__c == 1"> 1 person waiting</p>
+        <p class="link-blurb" ng-show="event.Waiting_Customers__c == 0"> Nobody waiting </p>
+        <div class="arrow-right"></div>
+      </div>
     </a>
   </div>
   <div id="navbar">
@@ -796,16 +825,16 @@ applyBodyTag="false"
         <div ng-show="$index == 0">
           <img class="off img-left" style="display: none" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
           <img class="on img-left" style="display: initial" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-          <img class="img-right" style="background-color: #FF4040" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
-          <img class="img-right" style="background-color: #7AC100" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
+          <img class="img-right" style="background-color: #FF7878" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
+          <img class="img-right" style="background-color: #91C726" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
           <p class="link-title blue"> {{customer.Name}} </p>
           <p class="link-blurb blue"> Next! </p>
         </div>
         <div ng-show="$index != 0">
           <img class="off img-left" src="{!URLFOR($Resource.listMeAssets, 'person.svg')}"/>
           <img class="on img-left" src="{!URLFOR($Resource.listMeAssets, 'person-alt.svg')}"/>
-          <img class="img-right" style="background-color: #FF4040" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
-          <img class="img-right" style="background-color: #7AC100" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
+          <img class="img-right" style="background-color: #FF7878" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}" ng-click="removeCustomer($index, customer, true)"/>
+          <img class="img-right" style="background-color: #91C726" src="{!URLFOR($Resource.listMeAssets, 'check.svg')}" ng-click="removeCustomer($index, customer, false)"/>
           <p class="link-title"> {{customer.Name}} </p>
           <p class="link-blurb" ng-show="$index < 5 && currentEvent.Show_Wait_Time__c && currentEvent.Average_Wait_Time__c"> Estimated wait time: {{currentEvent.Average_Wait_Time__c * $index}} minutes </p>
         </div>
@@ -856,7 +885,7 @@ applyBodyTag="false"
   <div id="add">
     <div class="link">
       <img class="img-right-main" id="hide-add" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"></img>
-      <h1 class="list-header"> Personal Information </h1>
+      <h1 class="list-header"> Personal Info </h1>
     </div>
     <br/><br/>
     <form>
