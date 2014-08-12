@@ -92,6 +92,12 @@ applyBodyTag="false"
     $('#hide-add').on('click', function(event) {
       $('#add').animate({"top":"100%"}, 200);
     });
+    $('#show-settings').on('click', function(event) {
+      $('#settings').animate({"top":"0"}, 200);
+    });
+    $('#hide-settings').on('click', function(event) {
+      $('#settings').animate({"top":"100%"}, 200);
+    });
     $('#expand-list').on('click', function(event) {
       $('#list').animate({"opacity":"1"}, 1);
       $('#list').animate({"top":"0"}, { queue: false, duration: 200 });
@@ -173,7 +179,7 @@ applyBodyTag="false"
     background: #fff;
   }
 
-  #add {
+  #add, #settings {
     position: fixed;
     z-index: 3;
     top: 100%;
@@ -726,6 +732,18 @@ applyBodyTag="false"
     height: 23px;
   }
 
+  #show-settings {
+    display: none;
+  }
+
+  #hide-add {
+    background: #999;
+  }
+
+  #hide-settings {
+    background: #999;
+  }
+
   @media (max-height: 700px) {
     .submit {
       position: static;
@@ -734,9 +752,17 @@ applyBodyTag="false"
   }
 
   @media (max-width: 400px) {
+    .header-overall {
+      display: none;
+    }
+
     .submit {
       position: absolute;
       bottom: 0;
+    }
+
+    .arrow-back-button {
+      top: 14px;
     }
 
     .question {
@@ -759,8 +785,8 @@ applyBodyTag="false"
       display: none;
     }
 
-    #hide-add {
-      background: #999;
+    #show-settings {
+      display: block;
     }
 
     #navbar_title, .tab {
@@ -774,7 +800,6 @@ applyBodyTag="false"
   </style>
 </head>
 <body ng-controller='EventController'>
-
     <div id="one-overall">
     <div class="header-overall"></div>
     <div class="link">
@@ -818,6 +843,7 @@ applyBodyTag="false"
     <section id="one">
       <div class="link">
         <img id="expand-list" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'expand.svg')}"/>
+        <img id="show-settings" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'settings-outline.svg')}"/>
         <img id="show-add" class="img-right-main" src="{!URLFOR($Resource.listMeAssets, 'add.svg')}"/>
         <h1 class="list-header"> Waitlist </h1>
       </div>
@@ -902,6 +928,41 @@ applyBodyTag="false"
       <br/><br/><br/><br/>
     <input class="submit" type="button" value="Submit" ng-click="createCustomer(customer, currentEvent)"></input>
     </form>
+  </div>
+  <div id="settings">
+    <div class="link">
+      <img class="img-right-main" id="hide-settings" src="{!URLFOR($Resource.listMeAssets, 'x.svg')}"></img>
+      <h1 class="list-header"> Settings </h1>
+    </div>
+    <div style="padding: 15px 10px 10px 25px">
+      <p> Add banner photo: </p>
+      <button id="add-photo-button" style="position: relative; top:-20px;"> Add Photo </button>
+      <img class="photo-preview" id="photoPreview" style="margin-left: 5px; margin-top: 5px; width: 50px; height: 50px;" src="{!$Resource.ListMe_Background_Img}"></img>
+      <input type="file" class="photo add-photo custom-file-input" id="photoFile" value="Add Photo" accept="image/*" style="top: -65px; left: 0px;"></input>
+      <div style="position: relative; top: -55px;">
+        <p style="padding-bottom: 5px;"> Remind customers at what waitlist position? </p>
+        <input class="short" type="Number" ng-model="currentEvent.Email_Position__c"/>
+        <p style="position: relative; top: 5px;"> Show individual wait times? </p>
+        <div>
+          <input type="checkbox" id="switch1" name="switch1" class="switch" ng-model="currentEvent.Show_Wait_Time__c"/>
+          <label for="switch1"> &nbsp; </label>
+          <span id="view-state-me"> Disabled </span>
+          <span id="view-state-all"> Enabled </span>
+        </div>
+        <br/>
+        <p style="position: relative; top: 5px;"> Send Email </p>
+        <div>
+          <input type="checkbox" id="switch2" name="switch2" class="switch2" ng-model="currentEvent.Send_Email__c"/>
+          <label for="switch2"> &nbsp; </label>
+          <span id="view-state-me2"> Disabled </span>
+          <span id="view-state-all2"> Enabled </span>
+        </div>
+      </div>
+      </div>
+    <button class="submit" ng-click="updateSettings()">
+      <span id="submit-text" ng-show="!showSpinner"> Update </span>
+      <img id="submit-loader" src="{!URLFOR($Resource.listMeAssets, 'loader.gif')}" ng-show="showSpinner"></img>
+    </button>
   </div>
   <div class="zoom" id="list">
     <div class="header-overall"></div>
