@@ -9,7 +9,6 @@ applyBodyTag="false"
 <html ng-app="listMe">
 <head>
   <title> ListMe </title>
-  <apex:stylesheet value="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400"/>
   <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>
   <meta charset="UTF-8"/>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"> </script>
@@ -114,7 +113,7 @@ applyBodyTag="false"
     });
   });
   </script>
-<style type="text/css">
+  <style type="text/css">
   @-webkit-keyframes bugfix {
     from { fill: 0; }
     to { fill: 0; }
@@ -420,11 +419,6 @@ applyBodyTag="false"
   textarea {
     height: 150px;
     padding-top: 10px;
-  }
-
-  select {
-    background: url("arrow-bottom.png") no-repeat right;
-    background-size: 60px 60px;
   }
 
   .padding {
@@ -1323,16 +1317,14 @@ listMeApp.controller('EventController', function($scope) {
         }
       }
       );
+    });
   });
-});
 
-var escapeHtml = function(string) {
-  return String(string).replace(/[&<>"\/]/g, function (s) {
-    return entityMap[s];
-  });
-}
-
-
-</script>
+  var escapeHtml = function(string) {
+    return String(string).replace(/[&<>"\/]/g, function (s) {
+      return entityMap[s];
+    });
+  }
+  </script>
 </html>
 </apex:page>
