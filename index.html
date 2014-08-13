@@ -1031,16 +1031,13 @@ listMeApp.controller('EventController', function($scope) {
   /** Gets all the Customers that are in the event with Id EVENTID. */
   $scope.getActiveCustomers = function(event) {
     $scope.currentEvent = event;
-    console.log($scope.currentEvent);
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.getActiveCustomers}',
       event.Id,
       function(result, event) {
         if (event.status) {
           $scope.customers = result;
-          console.log($("#one"));
           setSection($("#one"), $("#one-overall"));
-          console.log($("#one"));
           $scope.$apply();
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
@@ -1247,11 +1244,8 @@ listMeApp.controller('EventController', function($scope) {
       $scope.showSpinner = true;
       var finished = false;
       if ((typeof $scope.imageData != 'undefined') && $scope.imageData != ''){
-            console.log('click');
             forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
               var image = {'Body':$scope.imageData};
-              console.log(image);
-              console.log(response);
               forcetkClient.update('StaticResource',
                 response.records[0].Id,
                 image,
