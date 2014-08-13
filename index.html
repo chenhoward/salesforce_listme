@@ -21,6 +21,8 @@ applyBodyTag="false"
   <apex:includeScript value="{!URLFOR($Resource.TaskyAssets, 'slide.js')}"/>
   <apex:includeScript value="{!URLFOR($Resource.listMeAssets, 'd3/d3.min.js')}"/>
   <apex:includeScript value="{!URLFOR($Resource.RollCallAssets, 'forceTK/forceTK.js')}"/>
+  <apex:includeScript value="{!URLFOR($Resource.ListMeAssets, 'h5validate/h5validate.js')}"/>
+
   <script type="text/javascript">
   function setSection(to, from)
   {
@@ -65,6 +67,7 @@ applyBodyTag="false"
     }
   }
   $(document).ready(function(){
+     FastClick.attach(document.body);
     $('a').on('click', function(event) {
       var sectionId = $(this).attr("data-section"),
       $toSlide= $("#container section#"+sectionId),
@@ -805,6 +808,10 @@ applyBodyTag="false"
       left: 0;
     } 
   }
+
+  .red {
+    border-color:red;
+  }
   </style>
 </head>
 <body ng-controller='EventController'>
@@ -922,7 +929,7 @@ applyBodyTag="false"
       <h1 class="list-header"> Personal Info </h1>
     </div>
     <br/><br/>
-    <form>
+    <form id="customerForm" name="customerForm">
       <apex:repeat value="{!$ObjectType.Contact.FieldSets.ListMe}" var="f">
         <div class="question">
           <p>
@@ -930,11 +937,11 @@ applyBodyTag="false"
             <b ng-show="{!f.Required}" style="font-size:24px; color:red;"> * </b>
           </p>
 
-          <input class="short" type="{!f.Type}" name="text" ng-model="customer.{!f.FieldPath}" required="{!f.Required}"></input>
+          <input class="short" type="{!f.Type}" name="text" ng-model="customer.{!f.FieldPath}" ng-required="{!f.Required}"></input>
         </div>
       </apex:repeat>
       <br/><br/><br/><br/>
-    <input class="submit" type="button" value="Submit" ng-click="createCustomer(customer, currentEvent)"></input>
+    <input class="submit" type="submit" value="Submit" ng-click="customerForm.$valid && createCustomer(customer, currentEvent)"></input>
     </form>
   </div>
   <div id="settings">
@@ -1032,16 +1039,13 @@ listMeApp.controller('EventController', function($scope) {
   /** Gets all the Customers that are in the event with Id EVENTID. */
   $scope.getActiveCustomers = function(event) {
     $scope.currentEvent = event;
-    console.log($scope.currentEvent);
     Visualforce.remoting.Manager.invokeAction(
       '{!$RemoteAction.ListMeController.getActiveCustomers}',
       event.Id,
       function(result, event) {
         if (event.status) {
           $scope.customers = result;
-          console.log($("#one"));
           setSection($("#one"), $("#one-overall"));
-          console.log($("#one"));
           $scope.$apply();
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
@@ -1053,6 +1057,7 @@ listMeApp.controller('EventController', function($scope) {
   }
 
   $scope.createCustomer = function(customer, event) {
+    $('#add').animate({"top":"100%"}, 200);
     for (var key in customer) {
       if (isNaN(customer[key])) {
         var dateValue = Date.parse(customer[key]);
@@ -1070,7 +1075,6 @@ listMeApp.controller('EventController', function($scope) {
         if (event.status) {
           $scope.customers.push(result);
           $scope.$apply();
-          $('#add').animate({"top":"100%"}, 200);
           getEvents();
         } else if (event.type == 'exception') {
           alert('Exception: ' + event.message);
@@ -1248,11 +1252,8 @@ listMeApp.controller('EventController', function($scope) {
       $scope.showSpinner = true;
       var finished = false;
       if ((typeof $scope.imageData != 'undefined') && $scope.imageData != ''){
-            console.log('click');
             forcetkClient.query("SELECT Id FROM StaticResource where name LIKE '%ListMe_Background_Img%' LIMIT 1", function(response){
               var image = {'Body':$scope.imageData};
-              console.log(image);
-              console.log(response);
               forcetkClient.update('StaticResource',
                 response.records[0].Id,
                 image,
@@ -1320,11 +1321,11 @@ listMeApp.controller('EventController', function($scope) {
     });
   });
 
-  var escapeHtml = function(string) {
-    return String(string).replace(/[&<>"\/]/g, function (s) {
-      return entityMap[s];
+  $(document).ready(function () {
+      $('#customerForm').h5Validate({
+        errorClass:'red'
+      });
     });
-  }
   </script>
 </html>
 </apex:page>
