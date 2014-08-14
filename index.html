@@ -39,8 +39,8 @@ applyBodyTag="false"
       <div ng-click="getActiveCustomers(event)">
         <img class="img-left" src="{!URLFOR($Resource.listMeAssets, 'group.svg')}"/>
         <p class="link-title"> {{event.Name}} </p>
-        <p class="link-blurb" ng-show="event.Waiting_Customers__c > 1"> {{event.Waiting_Customers__c}} people waiting</p>
-        <p class="link-blurb" ng-show="event.Waiting_Customers__c == 1"> 1 person waiting</p>
+        <p class="link-blurb" ng-show="event.Waiting_Customers__c > 1"> {{event.Waiting_Customers__c}} people currently waiting</p>
+        <p class="link-blurb" ng-show="event.Waiting_Customers__c == 1"> 1 person currently waiting</p>
         <p class="link-blurb" ng-show="event.Waiting_Customers__c == 0"> Nobody waiting </p>
         <div class="arrow-right"></div>
       </div>
@@ -124,7 +124,7 @@ applyBodyTag="false"
           <span id="view-state-all"> Enabled </span>
         </div>
         <br/><br/>
-        <p> Send Email </p>
+        <p> Send Reminder Email </p>
         <div>
           <input type="checkbox" id="switch2" name="switch2" class="switch2" ng-model="currentEvent.Send_Email__c"/>
           <label for="switch2"> &nbsp; </label>

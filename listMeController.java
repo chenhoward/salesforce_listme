@@ -6,7 +6,7 @@ global with Sharing class ListMeController {
     global static ListMe_Event__c[] getEvents() {
         ListMe_Event__c[] events;
         if (Schema.SObjectType.ListMe_Event__c.isAccessible()) {
-            events= [SELECT Name, Id, Waiting_Customers__c, Average_Wait_Time__c, Show_Wait_Time__c, Email_Position__c, Send_Email__c FROM ListMe_Event__c];
+            events= [SELECT Name, Id, Waiting_Customers__c, Average_Wait_Time__c, Show_Wait_Time__c, Email_Position__c, Send_Email__c FROM ListMe_Event__c WHERE Active__c = true];
         }
         return events;
     }
