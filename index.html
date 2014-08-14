@@ -536,6 +536,20 @@ listMeApp.controller('EventController', function($scope) {
     });
   });
 
+  var escapeHtml = function(string) {
+    return String(string).replace(/[&<>"\/]/g, function (s) {
+      return entityMap[s];
+    });
+  }
+
+  var entityMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "/": '&#x2F;'
+  };
+
   $(document).ready(function () {
       $('#customerForm').h5Validate({
         errorClass:'red'
